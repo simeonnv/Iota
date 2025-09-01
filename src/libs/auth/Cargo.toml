@@ -1,0 +1,10 @@
+[package]
+name = "auth"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+jsonwebtoken = "9.3.1"
+openssl = "0.10.73"
+error = { path = "../../libs/error" }
+chrono = "0.4.41"
