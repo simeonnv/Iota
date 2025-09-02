@@ -6,7 +6,9 @@ edition = "2024"
 [dependencies]
 actix-web = "4.11.0"
 tokio = { version = "1.47.1", features = ["full"] }
-error = { path = "../../libs/error" }
 envconfig = "0.11.0"
 dotenv = "0.15.0"
 lazy_static = "1.5.0"
+
+error = { path = "../../libs/error" }
+db = { path = "../../libs/db" }

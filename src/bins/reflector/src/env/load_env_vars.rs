@@ -18,6 +18,9 @@ pub fn load_env_vars() -> EnvVars {
             panic!("Failed to load .env file: {}", e);
         }
     }
-    let env_vars = EnvVars::init_from_env().unwrap();
-    env_vars
+    let env_vars = EnvVars::init_from_env();
+    match env_vars {
+        Ok(e) => return e,
+        Err(e) => panic!("failed to serialize .env: {}", e),
+    }
 }
