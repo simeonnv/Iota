@@ -1,4 +1,9 @@
 [workspace]
 name = "Iota"
 resolver = "3"
-members = ["src/bins/reflector", "src/libs/auth", "src/libs/error"]
+members = [
+    "src/bins/reflector",
+    "src/libs/auth",
+    "src/libs/db",
+    "src/libs/error",
+]

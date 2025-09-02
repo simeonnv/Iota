@@ -2,7 +2,7 @@ use chrono::Utc;
 use error::Error;
 use openssl::rsa::Rsa;
 
-use crate::rsa_key_pair::RsaKeyPair::RsaKeyPair;
+use crate::rsa_key_pair::rsa_key_pair::RsaKeyPair;
 
 pub fn generate_token_pair() -> Result<RsaKeyPair, Error> {
     let rsa = Rsa::generate(2048)?;

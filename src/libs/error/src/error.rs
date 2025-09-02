@@ -1,6 +1,7 @@
 use actix_web::error::PayloadError;
 use actix_web::{HttpResponse, ResponseError};
 use openssl::error::ErrorStack;
+use sqlx::Error as SqlxError;
 use std::error::Error as StdError;
 use std::{fmt, sync::PoisonError};
 
@@ -105,5 +106,11 @@ impl<T> From<PoisonError<T>> for Error {
 impl From<ErrorStack> for Error {
     fn from(err: ErrorStack) -> Self {
         Error::Internal(format!("OpenSSL error: {}", err))
+    }
+}
+
+impl From<SqlxError> for Error {
+    fn from(err: SqlxError) -> Self {
+        Error::Internal(format!("DB Connection error: {}", err))
     }
 }

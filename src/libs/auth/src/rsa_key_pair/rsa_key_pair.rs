@@ -1,5 +1,4 @@
 use chrono::NaiveDateTime;
-use jsonwebtoken::{DecodingKey, EncodingKey};
 
 pub struct RsaKeyPair {
     pub private_key: Vec<u8>,
