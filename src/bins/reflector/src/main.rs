@@ -1,5 +1,7 @@
 use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, get};
 use db::init_postgres_db;
+use env_logger::Env;
+use log::info;
 
 use crate::env::ENVVARS;
 
@@ -7,6 +9,10 @@ pub mod env;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let _ = ENVVARS.rust_log;
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
+    info!("Server starting up");
+
     let db_pool = init_postgres_db(
         &ENVVARS.postgres_user,
         &ENVVARS.postgres_password,
@@ -17,7 +23,7 @@ async fn main() -> std::io::Result<()> {
     )
     .await?;
 
-    println!(
+    info!(
         "Server listening on {}:{}",
         ENVVARS.db_address, ENVVARS.db_port
     );

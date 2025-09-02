@@ -1,4 +1,5 @@
 use error::Error;
+use log::info;
 use sqlx::{Database, Executor, Pool};
 
 use crate::tables::ACCOUNTS_INIT;
@@ -16,11 +17,11 @@ where
         queries.push(ACCOUNTS_INIT);
     }
 
-    for query in queries.iter() {
+    for query in queries.into_iter() {
         sqlx::query(query).execute(pool).await?;
     }
 
-    println!("Inited tables for the Database");
+    info!("Inited tables for the Database");
 
     Ok(())
 }

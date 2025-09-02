@@ -1,4 +1,5 @@
 use error::Error;
+use log::info;
 use sqlx::{Pool, Postgres};
 
 use crate::{create_postgres_pool::create_postgres_pool, init_tables::init_tables};
@@ -23,7 +24,7 @@ pub async fn init_postgres_db(
 
     init_tables(&pool).await?;
 
-    println!("successfully inited db connection");
+    info!("successfully inited db connection");
 
     Ok(pool)
 }

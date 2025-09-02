@@ -13,3 +13,4 @@ sqlx = { version = "0.8", features = [
 ] }
 error = { path = "../error" }
 uuid = { version = "1.18.1", features = ["v4"] }
+log = "0.4.27"

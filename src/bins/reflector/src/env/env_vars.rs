@@ -5,6 +5,9 @@ use crate::env::load_env_vars;
 
 #[derive(Envconfig)]
 pub struct EnvVars {
+    #[envconfig(from = "RUST_LOG")]
+    pub rust_log: String,
+
     #[envconfig(from = "REFLECTOR_ADDRESS")]
     pub reflector_address: String,
 

@@ -1,4 +1,5 @@
 use error::Error;
+use log::info;
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 
 pub async fn create_postgres_pool(
@@ -14,7 +15,7 @@ pub async fn create_postgres_pool(
         postgres_user, postgres_password, db_address, db_port, postgres_name
     );
 
-    println!("creating a connection with db: {}", postgres_name);
+    info!("creating a connection with db: {}", postgres_name);
 
     let pool = PgPoolOptions::new()
         .max_connections(max_conn)
