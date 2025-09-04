@@ -3,7 +3,7 @@ name = "Iota"
 resolver = "3"
 members = [
     "src/bins/reflector",
-    "src/libs/auth",
+    "src/libs/auth", "src/libs/crypto",
     "src/libs/db",
     "src/libs/error",
 ]

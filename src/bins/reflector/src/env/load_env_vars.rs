@@ -14,8 +14,7 @@ pub fn load_env_vars() -> EnvVars {
         }
 
         if let Err(e) = dotenv::from_path(env_path) {
-            // error!("Failed to load .env file: {}", e);
-            panic!("Failed to load .env file: {}", e);
+            panic!("Failed to load {} file: {}", env_path.display(), e);
         }
     }
     let env_vars = EnvVars::init_from_env();

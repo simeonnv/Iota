@@ -11,7 +11,7 @@ pub struct Accounts {
     pub created_at: NaiveDateTime,
 }
 
-pub const ACCOUNTS_INIT: &'static str = r#"
+pub const INIT_ACCOUNTS_TABLE: &'static str = r#"
     CREATE TABLE IF NOT EXISTS Accounts (
         account_id UUID PRIMARY KEY,
         username VARCHAR(64) NOT NULL UNIQUE,
@@ -19,4 +19,8 @@ pub const ACCOUNTS_INIT: &'static str = r#"
         role VARCHAR(32) NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
+"#;
+
+pub const INIT_ACCOUNTS_INDEXES: &'static str = r#"
+    CREATE INDEX idx_accounts_account_id ON Accounts (account_id);
 "#;

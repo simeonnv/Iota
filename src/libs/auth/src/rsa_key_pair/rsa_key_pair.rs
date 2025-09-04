@@ -1,5 +1,6 @@
 use chrono::NaiveDateTime;
 
+#[derive(Debug)]
 pub struct RsaKeyPair {
     pub private_key: Vec<u8>,
     pub public_key: Vec<u8>,
