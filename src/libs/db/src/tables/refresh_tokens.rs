@@ -21,6 +21,6 @@ pub const INIT_REFRESH_TOKEN_TABLE: &'static str = r#"
     );
 "#;
 
-pub const INIT_REFRESH_TOKEN_INDEXES: &'static str = r#"
+pub const INIT_REFRESH_TOKEN_INDEX_REFRESH_TOKEN_ID: &'static str = r#"
     CREATE INDEX idx_refresh_tokens_refresh_token_id ON RefreshTokens (refresh_token_id);
 "#;

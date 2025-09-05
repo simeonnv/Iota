@@ -19,7 +19,12 @@ sqlx = { version = "0.8", features = [
     "uuid",
 ] }
 jsonwebtoken = "9.3.1"
+serde = { version = "1.0", features = ["derive"] }
+utoipa = { version = "5.2.0", features = ["chrono"] }
+utoipa-swagger-ui = { version = "9.0.0", features = ["actix-web", "vendored"] }
+actix-cors = "0.7.0"
 
 error = { path = "../../libs/error" }
 db = { path = "../../libs/db" }
 auth = { path = "../../libs/auth" }
+utils = { path = "../../libs/utils" }

@@ -1,16 +1,23 @@
-use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, get, web::Data};
-use auth::{
-    account::create_account_db::create_account_db,
-    refresh_token::create_refresh_token_db::create_refresh_token_db,
+use actix_cors::Cors;
+use actix_web::{
+    App, HttpServer,
+    middleware::Logger,
+    web::{Data, PayloadConfig},
 };
+
+use auth::account::create_account_db::create_account_db;
 use db::init_postgres_db;
 use env_logger::Env;
 use log::info;
 
 use crate::{env::ENVVARS, rolling_rsa::RollingRSA};
 
+pub mod api_docs;
+pub mod endpoints;
 pub mod env;
 pub mod rolling_rsa;
+
+use endpoints::endpoints;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -32,25 +39,25 @@ async fn main() -> std::io::Result<()> {
     let rsa_key_pair = RollingRSA::init(db_pool.clone().into_inner()).await?;
     let rsa_key_pair = Data::from(rsa_key_pair);
 
+    let _ = create_account_db(&"admin".into(), &"admin".into(), "admin", &db_pool).await;
     info!(
         "Server listening on {}:{}",
         ENVVARS.db_address, ENVVARS.db_port,
     );
 
     HttpServer::new(move || {
+        let cors = Cors::permissive();
+
         App::new()
+            .wrap(cors)
+            .wrap(Logger::default())
+            .wrap(Logger::new("%a %{User-Agent}i"))
+            .app_data(PayloadConfig::new(1 * 1024 * 1024)) // 1 mb max upload
             .app_data(db_pool.clone())
             .app_data(rsa_key_pair.clone())
-            .service(hello)
+            .service(endpoints())
     })
     .bind(("0.0.0.0", 25025))?
     .run()
     .await
-}
-
-#[get("/")]
-async fn hello(req: HttpRequest) -> impl Responder {
-    dbg!(req.peer_addr());
-
-    HttpResponse::Ok().body("Hello world!")
 }

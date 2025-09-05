@@ -3,8 +3,8 @@ use log::{info, warn};
 use sqlx::{Database, Executor, Pool};
 
 use crate::tables::{
-    INIT_ACCOUNTS_INDEXES, INIT_ACCOUNTS_TABLE, INIT_REFRESH_TOKEN_INDEXES,
-    INIT_REFRESH_TOKEN_TABLE, INIT_RSAKEYPAIR_TABLE,
+    INIT_ACCOUNTS_INDEX_ACCOUNT_ID, INIT_ACCOUNTS_INDEX_USERNAME, INIT_ACCOUNTS_TABLE,
+    INIT_REFRESH_TOKEN_INDEX_REFRESH_TOKEN_ID, INIT_REFRESH_TOKEN_TABLE, INIT_RSAKEYPAIR_TABLE,
 };
 
 pub async fn init_tables<T: Database>(pool: &Pool<T>) -> Result<(), Error>
@@ -17,13 +17,17 @@ where
 
     // push all table schemas as needed
     {
+        // accounts
         queries.push(INIT_ACCOUNTS_TABLE);
-        queries.push(INIT_ACCOUNTS_INDEXES);
+        queries.push(INIT_ACCOUNTS_INDEX_ACCOUNT_ID);
+        queries.push(INIT_ACCOUNTS_INDEX_USERNAME);
 
+        // rsa key pair
         queries.push(INIT_RSAKEYPAIR_TABLE);
 
+        // refresh token
         queries.push(INIT_REFRESH_TOKEN_TABLE);
-        queries.push(INIT_REFRESH_TOKEN_INDEXES);
+        queries.push(INIT_REFRESH_TOKEN_INDEX_REFRESH_TOKEN_ID);
     }
 
     for query in queries.into_iter() {

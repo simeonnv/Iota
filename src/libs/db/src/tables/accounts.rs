@@ -21,6 +21,10 @@ pub const INIT_ACCOUNTS_TABLE: &'static str = r#"
     );
 "#;
 
-pub const INIT_ACCOUNTS_INDEXES: &'static str = r#"
+pub const INIT_ACCOUNTS_INDEX_ACCOUNT_ID: &'static str = r#"
     CREATE INDEX idx_accounts_account_id ON Accounts (account_id);
+"#;
+
+pub const INIT_ACCOUNTS_INDEX_USERNAME: &'static str = r#"
+    CREATE INDEX idx_accounts_username ON Accounts (username);
 "#;
