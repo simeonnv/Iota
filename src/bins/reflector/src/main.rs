@@ -1,4 +1,8 @@
 use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, get, web::Data};
+use auth::{
+    account::create_account_db::create_account_db,
+    refresh_token::create_refresh_token_db::create_refresh_token_db,
+};
 use db::init_postgres_db;
 use env_logger::Env;
 use log::info;
@@ -26,7 +30,7 @@ async fn main() -> std::io::Result<()> {
 
     let db_pool = Data::new(db_pool);
     let rsa_key_pair = RollingRSA::init(db_pool.clone().into_inner()).await?;
-    let rsa_key_pair = Data::new(rsa_key_pair);
+    let rsa_key_pair = Data::from(rsa_key_pair);
 
     info!(
         "Server listening on {}:{}",

@@ -4,8 +4,8 @@ use log::debug;
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
-pub async fn create_refresh_token(
-    account_id: i32,
+pub async fn create_refresh_token_db(
+    account_id: &Uuid,
     role: &String,
     db_pool: &Pool<Postgres>,
 ) -> Result<String, Error> {
@@ -17,7 +17,7 @@ pub async fn create_refresh_token(
         INSERT INTO RefreshTokens
             (refresh_token_id, role, refresh_token, account_id)
             VALUES ($1, $2, $3, $4)
-        RETURNING account_id;
+        ;
 
     "#,
     )
@@ -25,7 +25,7 @@ pub async fn create_refresh_token(
     .bind(role)
     .bind(&token)
     .bind(account_id)
-    .fetch_one(db_pool)
+    .execute(db_pool)
     .await?;
 
     debug!(

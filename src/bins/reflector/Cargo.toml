@@ -18,6 +18,7 @@ sqlx = { version = "0.8", features = [
     "chrono",
     "uuid",
 ] }
+jsonwebtoken = "9.3.1"
 
 error = { path = "../../libs/error" }
 db = { path = "../../libs/db" }

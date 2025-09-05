@@ -1,5 +1,7 @@
 use actix_web::error::PayloadError;
 use actix_web::{HttpResponse, ResponseError};
+use argon2::password_hash::Error as Argon2Error;
+use jsonwebtoken::errors::Error as JwtError;
 use openssl::error::ErrorStack;
 use sqlx::Error as SqlxError;
 use std::error::Error as StdError;
@@ -112,5 +114,17 @@ impl From<ErrorStack> for Error {
 impl From<SqlxError> for Error {
     fn from(err: SqlxError) -> Self {
         Error::Internal(format!("DB Connection error: {}", err))
+    }
+}
+
+impl From<JwtError> for Error {
+    fn from(err: JwtError) -> Self {
+        Error::Internal(format!("JWT encoding error: {}", err))
+    }
+}
+
+impl From<Argon2Error> for Error {
+    fn from(err: Argon2Error) -> Self {
+        Error::Internal(format!("Crypto hash error: {}", err))
     }
 }

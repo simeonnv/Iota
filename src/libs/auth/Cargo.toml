@@ -13,8 +13,10 @@ sqlx = { version = "0.8", features = [
     "uuid",
 ] }
 chrono = "0.4.41"
-uuid = { version = "1.18.1", features = ["v4"] }
+uuid = { version = "1.18.1", features = ["v4", "serde"] }
 log = "0.4.27"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.143"
 
 error = { path = "../../libs/error" }
 db = { path = "../../libs/db" }
