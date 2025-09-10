@@ -13,8 +13,10 @@ use log::info;
 use crate::{env::ENVVARS, rolling_rsa::RollingRSA};
 
 pub mod api_docs;
+pub mod config;
 pub mod endpoints;
 pub mod env;
+pub mod middleware;
 pub mod rolling_rsa;
 
 use endpoints::endpoints;
@@ -51,7 +53,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .wrap(Logger::default())
-            .wrap(Logger::new("%a %{User-Agent}i"))
+            .wrap(Logger::new("%a %{User-Agent}i %T"))
             .app_data(PayloadConfig::new(1 * 1024 * 1024)) // 1 mb max upload
             .app_data(db_pool.clone())
             .app_data(rsa_key_pair.clone())

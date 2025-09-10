@@ -3,6 +3,7 @@ use actix_web::{Scope, web};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
+pub mod account;
 pub mod auth;
 pub mod get_ping;
 
@@ -12,6 +13,8 @@ pub fn endpoints() -> Scope {
             SwaggerUi::new("/swagger/{_:.*}")
                 .url("/api-docs/openapi.json", api_docs::ApiDoc::openapi()),
         )
-        .service(auth::auth())
+        .service(web::redirect("/swagger", "/swagger/"))
         .service(get_ping::get_ping)
+        .service(auth::auth())
+        .service(account::accounts())
 }

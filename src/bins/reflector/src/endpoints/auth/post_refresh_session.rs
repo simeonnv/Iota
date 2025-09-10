@@ -1,57 +1,48 @@
 use actix_web::{HttpResponse, post, web};
-use auth::{
-    account::{create_account_db::create_account_db, does_account_exist_db::does_account_exist_db},
-    jwt::create_jwt::create_jwt,
-    refresh_token::create_refresh_token_db::create_refresh_token_db,
-};
 
+use auth::{
+    jwt::create_jwt::create_jwt,
+    refresh_token::get_refresh_token_data_db::get_refresh_token_data_db,
+};
+use chashmap::CHashMap;
+use chrono::{NaiveDateTime, Utc};
 use error::Error;
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
 use tokio::sync::RwLock;
-use utils::insure_len;
 use utoipa::ToSchema;
 
-use crate::{
-    config::{
-        JWT_LIFETIME, MAX_PASS_LENGHT, MAX_USERNAME_LENGHT, MIN_PASS_LENGHT, MIN_USERNAME_LENGHT,
-    },
-    rolling_rsa::RollingRSA,
-};
+use crate::{config::JWT_LIFETIME, rolling_rsa::RollingRSA};
 
 #[derive(Serialize, Deserialize, ToSchema)]
-#[schema(as = Post::Auth::Signup::Req)]
+#[schema(as = Post::Auth::RefreshSession::Req)]
 pub struct Req {
-    pub username: String,
-    pub password: String,
+    pub refresh_token: String,
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]
-#[schema(as = Post::Auth::Signup::Res)]
+#[schema(as = Post::Auth::RefreshSession::Res)]
 struct Res {
     status: &'static str,
     data: DataRes,
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]
-#[schema(as = Post::Auth::Signup::Res::DataRes)]
+#[schema(as = Post::Auth::RefreshSession::Res::DataRes)]
 struct DataRes {
-    refresh_token: String,
     jwt: String,
 }
 
 #[utoipa::path(
     post,
-    path = "/auth/signup",
+    path = "/auth/refresh_session",
     request_body = Req,
     responses(
-        (status = 200, description = "Signup successful", body = Res, example = json!({
+        (status = 200, description = "Login successful", body = Res, example = json!({
             "status": "success",
             "data": {
-                "refresh_token": "abc123xyz456",
                 "jwt": "abc123xyz456"
             }
-
         })),
         (status = 401, description = "Unauthorized", body = Res, example = json!({
             "status": "incorrect credential",
@@ -65,32 +56,38 @@ struct DataRes {
     security(),
     tag = "Auth"
 )]
-#[post("/signup")]
-pub async fn post_signup(
+#[post("/refresh_session")]
+pub async fn post_refresh_session(
     body: web::Json<Req>,
     db_pool: web::Data<Pool<Postgres>>,
     rsa_key_pair: web::Data<RwLock<RollingRSA>>,
+    session_map: web::Data<CHashMap<String, NaiveDateTime>>,
 ) -> Result<HttpResponse, Error> {
-    insure_len(&body.username, MIN_USERNAME_LENGHT, MAX_USERNAME_LENGHT)?;
-    insure_len(&body.password, MIN_PASS_LENGHT, MAX_PASS_LENGHT)?;
+    dbg!(&session_map);
+    let last_session = session_map.get(&body.refresh_token);
+    let now = Utc::now().naive_utc();
 
-    if does_account_exist_db(&body.username, &db_pool).await? {
-        return Err(Error::Conflict("Account already exists".to_string()));
+    if let Some(last_session) = last_session
+        && *last_session < now + JWT_LIFETIME
+    {
+        return Err(Error::Conflict(
+            "there is aleady a jwt in use for your session!".into(),
+        ));
     }
 
-    let account_id = create_account_db(&body.username, &body.password, "user", &db_pool).await?;
-
-    let refresh_token = create_refresh_token_db(&account_id, &"user".to_string(), &db_pool).await?;
+    let token_data = get_refresh_token_data_db(&body.refresh_token, &db_pool).await?;
     let jwt = create_jwt(
-        &account_id,
-        &"user".into(),
+        &token_data.account_id,
+        &token_data.role,
         &JWT_LIFETIME,
         &rsa_key_pair.read().await.encode_key,
     )
     .await?;
 
+    session_map.insert(body.refresh_token.clone(), now);
+
     return Ok(HttpResponse::Ok().json(Res {
         status: "success",
-        data: DataRes { refresh_token, jwt },
+        data: DataRes { jwt },
     }));
 }
