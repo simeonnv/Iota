@@ -24,9 +24,10 @@ utoipa = { version = "5.2.0", features = ["chrono", "uuid"] }
 utoipa-swagger-ui = { version = "9.0.0", features = ["actix-web", "vendored"] }
 actix-cors = "0.7.0"
 uuid = { version = "1.18.1", features = ["v4", "serde"] }
+chashmap = "2.2.2"
 
 error = { path = "../../libs/error" }
 db = { path = "../../libs/db" }
 auth = { path = "../../libs/auth" }
 utils = { path = "../../libs/utils" }
-chashmap = "2.2.2"
+gateway = { path = "../../libs/gateway" }

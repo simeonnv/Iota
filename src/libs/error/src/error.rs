@@ -5,6 +5,7 @@ use jsonwebtoken::errors::Error as JwtError;
 use openssl::error::ErrorStack;
 use sqlx::Error as SqlxError;
 use std::error::Error as StdError;
+use std::net::AddrParseError;
 use std::{fmt, sync::PoisonError};
 
 use serde::{Deserialize, Serialize};
@@ -21,6 +22,7 @@ pub enum Error {
     BadRequest(String),
     Internal(String),
     UniqueNameViolation(String),
+    ErrorTooManyRequests(String),
     NotFound(),
 }
 
@@ -32,6 +34,7 @@ impl fmt::Display for Error {
             Error::BadRequest(msg) => write!(f, "Bad request: {}", msg),
             Error::Internal(msg) => write!(f, "Internal error: {}", msg),
             Error::UniqueNameViolation(msg) => write!(f, "Unique constraint violation: {}", msg),
+            Error::ErrorTooManyRequests(msg) => write!(f, "Too many requests: {}", msg),
             Error::NotFound() => write!(f, "Not Found"),
         }
     }
@@ -60,6 +63,10 @@ impl ResponseError for Error {
                 status: msg.to_string(),
                 data: "",
             }),
+            Error::ErrorTooManyRequests(msg) => HttpResponse::TooManyRequests().json(ErrorRes {
+                status: msg.to_string(),
+                data: "",
+            }),
             Error::NotFound() => HttpResponse::NotFound().finish(),
         }
     }
@@ -77,6 +84,10 @@ impl From<Error> for std::io::Error {
             Error::UniqueNameViolation(msg) => {
                 std::io::Error::new(std::io::ErrorKind::AlreadyExists, msg)
             }
+            Error::ErrorTooManyRequests(msg) => std::io::Error::new(
+                std::io::ErrorKind::ConnectionRefused,
+                format!("Too many reqeusts: {}", msg),
+            ),
             Error::NotFound() => {
                 std::io::Error::new(std::io::ErrorKind::NotFound, "Resource not found")
             }
@@ -126,5 +137,11 @@ impl From<JwtError> for Error {
 impl From<Argon2Error> for Error {
     fn from(err: Argon2Error) -> Self {
         Error::Internal(format!("Crypto hash error: {}", err))
+    }
+}
+
+impl From<AddrParseError> for Error {
+    fn from(err: AddrParseError) -> Self {
+        Error::Internal(format!("Was unable to parse ip address: {}", err))
     }
 }

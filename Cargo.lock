@@ -955,6 +955,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "gateway"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "tokio",
+]
+
+[[package]]
 name = "generic-array"
 version = "0.14.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1920,6 +1928,7 @@ dependencies = [
  "env_logger",
  "envconfig",
  "error",
+ "gateway",
  "jsonwebtoken",
  "lazy_static",
  "log",

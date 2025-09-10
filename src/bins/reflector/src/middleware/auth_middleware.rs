@@ -10,9 +10,13 @@ use auth::jwt::decode_jwt::decode_jwt;
 use error::Error;
 use tokio::sync::RwLock;
 
+// auth level is the authorization needed to enter the endpoint
+// if auth level is none => the only thing required to ender the endpoint is
+// a valid session => you can enter no matter auth level
 pub async fn auth_middleware(
     req: ServiceRequest,
     next: Next<impl MessageBody>,
+    auth_level: Option<&str>,
 ) -> Result<ServiceResponse<impl MessageBody>, ActixError> {
     let rsa_key_pair = req
         .app_data::<web::Data<RwLock<RollingRSA>>>()
@@ -29,12 +33,18 @@ pub async fn auth_middleware(
     }?;
 
     if !auth_header.starts_with("Bearer ") {
-        return Err(Error::Unauthorized("Invalid token syntax".to_string()).into());
+        return Err(Error::Unauthorized("Invalid token syntax".into()).into());
     }
 
     let jwt = String::from(&auth_header["Bearer ".len()..]);
 
     let claims = decode_jwt(&rsa_key_pair.read().await.decode_key, &jwt).await?;
+
+    if let Some(auth_level) = auth_level
+        && claims.role != auth_level
+    {
+        return Err(Error::Unauthorized("Invalid autoriztion level!".into()).into());
+    }
 
     req.extensions_mut().insert(claims);
 
