@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Bucket {
     pub count: u32,
     pub last_updated: DateTime<Utc>,
@@ -26,9 +26,9 @@ impl Bucket {
     pub fn add(&mut self, tokens: u32, capacity: u32) -> bool {
         if self.count + tokens <= capacity {
             self.count += tokens;
-            true
-        } else {
             false
+        } else {
+            true
         }
     }
 }

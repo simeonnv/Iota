@@ -6,6 +6,7 @@ use actix_web::{
 };
 use error::Error;
 use gateway::rate_limiter::leaky_bucket::leaky_bucket_rate_limiter::LeakyBucketRateLimiter;
+use log::debug;
 use std::{net::IpAddr, str::FromStr, sync::Arc};
 
 pub async fn rate_limiter_middleware(
@@ -24,6 +25,8 @@ pub async fn rate_limiter_middleware(
     };
 
     let rate_limited = rate_limiter.check_rate_limit(ip).await;
+
+    debug!("ip: {}, ratelimited: {}", ip, rate_limited);
 
     if rate_limited {
         return Err(Error::ErrorTooManyRequests("Rate limited".into()).into());

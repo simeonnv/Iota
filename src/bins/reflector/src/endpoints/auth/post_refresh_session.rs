@@ -84,7 +84,7 @@ pub async fn post_refresh_session(
     )
     .await?;
 
-    session_map.insert(body.refresh_token.clone(), now);
+    // session_map.insert(body.refresh_token.clone(), now);
 
     return Ok(HttpResponse::Ok().json(Res {
         status: "success",

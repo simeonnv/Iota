@@ -2,7 +2,7 @@ use crate::rate_limiter::leaky_bucket::bucket::Bucket;
 use std::{collections::HashMap, net::IpAddr, sync::Arc};
 use tokio::sync::{Mutex, RwLock};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct LeakyBucketRateLimiter {
     pub buckets: Arc<RwLock<HashMap<IpAddr, Mutex<Bucket>>>>,
     pub capacity: u32,
@@ -19,6 +19,8 @@ impl LeakyBucketRateLimiter {
     }
 
     pub async fn check_rate_limit(&self, ip: IpAddr) -> bool {
+        dbg!(self);
+
         {
             let buckets = self.buckets.read().await;
             if let Some(bucket) = buckets.get(&ip) {
@@ -26,7 +28,7 @@ impl LeakyBucketRateLimiter {
                 if bucket.leak(self.leak_rate, self.capacity) {
                     return bucket.add(1, self.capacity);
                 } else {
-                    return false;
+                    return true;
                 }
             }
         }
@@ -34,6 +36,7 @@ impl LeakyBucketRateLimiter {
         let mut buckets = self.buckets.write().await;
         buckets.insert(ip, Mutex::new(Bucket::new()));
 
+        // dbg!(self);
         false
     }
 }
