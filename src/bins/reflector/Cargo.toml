@@ -18,7 +18,6 @@ sqlx = { version = "0.8", features = [
     "chrono",
     "uuid",
 ] }
-jsonwebtoken = "9.3.1"
 serde = { version = "1.0", features = ["derive"] }
 utoipa = { version = "5.2.0", features = ["chrono", "uuid"] }
 utoipa-swagger-ui = { version = "9.0.0", features = ["actix-web", "vendored"] }
@@ -31,3 +30,4 @@ db = { path = "../../libs/db" }
 auth = { path = "../../libs/auth" }
 utils = { path = "../../libs/utils" }
 gateway = { path = "../../libs/gateway" }
+crypto = { path = "../../libs/crypto" }

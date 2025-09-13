@@ -1,7 +1,7 @@
 [workspace]
 name = "Iota"
 resolver = "3"
-members = [
+members = [ "src/bins/debug_test",
     "src/bins/reflector",
     "src/libs/auth",
     "src/libs/crypto",

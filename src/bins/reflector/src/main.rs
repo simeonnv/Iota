@@ -5,12 +5,12 @@ use actix_web::{
     web::{Data, PayloadConfig},
 };
 
-use auth::account::create_account_db::create_account_db;
+use auth::{account::create_account_db::create_account_db, jwt::algorithm_type::AlgorithmType};
 use db::init_postgres_db;
 use env_logger::Env;
 use log::info;
 
-use crate::{env::ENVVARS, rolling_rsa::RollingRSA};
+use crate::{env::ENVVARS, rolling_rsa::RollingKeyPair};
 
 pub mod api_docs;
 pub mod config;
@@ -38,7 +38,8 @@ async fn main() -> std::io::Result<()> {
     .await?;
 
     let db_pool = Data::new(db_pool);
-    let rsa_key_pair = RollingRSA::init(db_pool.clone().into_inner()).await?;
+    let rsa_key_pair =
+        RollingKeyPair::init(db_pool.clone().into_inner(), AlgorithmType::Falcon512).await?;
     let rsa_key_pair = Data::from(rsa_key_pair);
 
     let _ = create_account_db(&"admin".into(), &"admin".into(), "admin", &db_pool).await;

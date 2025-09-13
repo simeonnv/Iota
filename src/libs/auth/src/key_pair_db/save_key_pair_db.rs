@@ -1,12 +1,9 @@
-use crate::rsa_key_pair::rsa_key_pair::RsaKeyPair;
+use crypto::sign::key_pair::KeyPair;
 use error::Error;
 use log::info;
 use sqlx::{Pool, Postgres, types::Uuid};
 
-pub async fn save_rsa_key_pair_db(
-    rsa_key_pair: &RsaKeyPair,
-    pool: &Pool<Postgres>,
-) -> Result<(), Error> {
+pub async fn save_key_pair_db(key_pair: &KeyPair, pool: &Pool<Postgres>) -> Result<(), Error> {
     sqlx::query(
         r#"
             INSERT INTO KeyPairs
@@ -15,8 +12,8 @@ pub async fn save_rsa_key_pair_db(
         "#,
     )
     .bind(Uuid::new_v4())
-    .bind(rsa_key_pair.private_key.clone())
-    .bind(rsa_key_pair.public_key.clone())
+    .bind(key_pair.private_key.clone())
+    .bind(key_pair.public_key.clone())
     .execute(pool)
     .await?;
 

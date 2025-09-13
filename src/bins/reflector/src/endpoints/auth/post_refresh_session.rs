@@ -12,7 +12,7 @@ use sqlx::{Pool, Postgres};
 use tokio::sync::RwLock;
 use utoipa::ToSchema;
 
-use crate::{config::JWT_LIFETIME, rolling_rsa::RollingRSA};
+use crate::{config::JWT_LIFETIME, rolling_rsa::RollingKeyPair};
 
 #[derive(Serialize, Deserialize, ToSchema)]
 #[schema(as = Post::Auth::RefreshSession::Req)]
@@ -60,7 +60,7 @@ struct DataRes {
 pub async fn post_refresh_session(
     body: web::Json<Req>,
     db_pool: web::Data<Pool<Postgres>>,
-    rsa_key_pair: web::Data<RwLock<RollingRSA>>,
+    rolling_key_pair: web::Data<RwLock<RollingKeyPair>>,
     session_map: web::Data<CHashMap<String, NaiveDateTime>>,
 ) -> Result<HttpResponse, Error> {
     dbg!(&session_map);
@@ -76,15 +76,19 @@ pub async fn post_refresh_session(
     }
 
     let token_data = get_refresh_token_data_db(&body.refresh_token, &db_pool).await?;
-    let jwt = create_jwt(
-        &token_data.account_id,
-        &token_data.role,
-        &JWT_LIFETIME,
-        &rsa_key_pair.read().await.encode_key,
-    )
-    .await?;
+    let jwt = {
+        let rolling_key_pair_read_lock = rolling_key_pair.read().await;
+        create_jwt(
+            token_data.account_id,
+            token_data.role,
+            JWT_LIFETIME,
+            rolling_key_pair_read_lock.sign_alg,
+            &rolling_key_pair_read_lock.key_pair.private_key,
+        )
+        .await?
+    };
 
-    // session_map.insert(body.refresh_token.clone(), now);
+    session_map.insert(body.refresh_token.clone(), now);
 
     return Ok(HttpResponse::Ok().json(Res {
         status: "success",

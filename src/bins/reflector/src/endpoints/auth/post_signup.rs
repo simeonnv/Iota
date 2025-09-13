@@ -16,7 +16,7 @@ use crate::{
     config::{
         JWT_LIFETIME, MAX_PASS_LENGHT, MAX_USERNAME_LENGHT, MIN_PASS_LENGHT, MIN_USERNAME_LENGHT,
     },
-    rolling_rsa::RollingRSA,
+    rolling_rsa::RollingKeyPair,
 };
 
 #[derive(Serialize, Deserialize, ToSchema)]
@@ -69,7 +69,7 @@ struct DataRes {
 pub async fn post_signup(
     body: web::Json<Req>,
     db_pool: web::Data<Pool<Postgres>>,
-    rsa_key_pair: web::Data<RwLock<RollingRSA>>,
+    rolling_key_pair: web::Data<RwLock<RollingKeyPair>>,
 ) -> Result<HttpResponse, Error> {
     insure_len(&body.username, MIN_USERNAME_LENGHT, MAX_USERNAME_LENGHT)?;
     insure_len(&body.password, MIN_PASS_LENGHT, MAX_PASS_LENGHT)?;
@@ -81,13 +81,17 @@ pub async fn post_signup(
     let account_id = create_account_db(&body.username, &body.password, "user", &db_pool).await?;
 
     let refresh_token = create_refresh_token_db(&account_id, &"user".to_string(), &db_pool).await?;
-    let jwt = create_jwt(
-        &account_id,
-        &"user".into(),
-        &JWT_LIFETIME,
-        &rsa_key_pair.read().await.encode_key,
-    )
-    .await?;
+    let jwt = {
+        let rolling_key_pair_read_lock = rolling_key_pair.read().await;
+        create_jwt(
+            account_id,
+            "user".to_string(),
+            JWT_LIFETIME,
+            rolling_key_pair_read_lock.sign_alg,
+            &rolling_key_pair_read_lock.key_pair.private_key,
+        )
+        .await?
+    };
 
     return Ok(HttpResponse::Ok().json(Res {
         status: "success",

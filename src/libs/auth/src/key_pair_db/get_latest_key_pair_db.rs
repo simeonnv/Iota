@@ -1,12 +1,10 @@
-use crate::rsa_key_pair::rsa_key_pair::RsaKeyPair;
+use crypto::sign::key_pair::KeyPair;
 use db::tables::RsaKeyPairs;
 use error::Error;
 use log::{info, warn};
 use sqlx::{Pool, Postgres};
 
-pub async fn get_latest_rsa_key_pair_db(
-    pool: &Pool<Postgres>,
-) -> Result<Option<RsaKeyPair>, Error> {
+pub async fn get_latest_key_pair_db(pool: &Pool<Postgres>) -> Result<Option<KeyPair>, Error> {
     let latest_key_pair: Option<RsaKeyPairs> = sqlx::query_as(
         r#"
             SELECT * FROM KeyPairs ORDER BY created_at DESC LIMIT 1;
@@ -15,7 +13,7 @@ pub async fn get_latest_rsa_key_pair_db(
     .fetch_optional(pool)
     .await?;
 
-    let latest_key_pair = latest_key_pair.map(|e| RsaKeyPair {
+    let latest_key_pair = latest_key_pair.map(|e| KeyPair {
         private_key: e.private_key,
         public_key: e.public_key,
         creation_time: e.created_at,

@@ -1,8 +1,11 @@
 use actix_web::error::PayloadError;
 use actix_web::{HttpResponse, ResponseError};
 use argon2::password_hash::Error as Argon2Error;
+use base64::DecodeError as Base64DecodeError;
 use jsonwebtoken::errors::Error as JwtError;
 use openssl::error::ErrorStack;
+use oqs::Error as QuantumError;
+use serde_json::Error as SerdeJsonError;
 use sqlx::Error as SqlxError;
 use std::error::Error as StdError;
 use std::net::AddrParseError;
@@ -143,5 +146,23 @@ impl From<Argon2Error> for Error {
 impl From<AddrParseError> for Error {
     fn from(err: AddrParseError) -> Self {
         Error::Internal(format!("Was unable to parse ip address: {}", err))
+    }
+}
+
+impl From<QuantumError> for Error {
+    fn from(err: QuantumError) -> Self {
+        Error::Internal(format!("Quantum encryption error: {}", err))
+    }
+}
+
+impl From<Base64DecodeError> for Error {
+    fn from(err: Base64DecodeError) -> Self {
+        Error::Internal(format!("Base64 decode error: {}", err))
+    }
+}
+
+impl From<SerdeJsonError> for Error {
+    fn from(err: SerdeJsonError) -> Self {
+        Error::Internal(format!("deserialize error error: {}", err))
     }
 }

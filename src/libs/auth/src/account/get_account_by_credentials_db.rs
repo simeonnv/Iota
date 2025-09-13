@@ -1,4 +1,4 @@
-use crypto::compare_argon2_hash;
+use crypto::hashing::compare_argon2_hash;
 use db::tables::Accounts;
 use serde::{Deserialize, Serialize};
 

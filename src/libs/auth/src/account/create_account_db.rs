@@ -1,4 +1,4 @@
-use crypto::argon2_hash;
+use crypto::hashing::argon2_hash;
 use error::Error;
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;

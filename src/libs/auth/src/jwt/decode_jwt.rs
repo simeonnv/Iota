@@ -1,22 +1,46 @@
+use base64::{Engine, prelude::BASE64_URL_SAFE_NO_PAD};
+use crypto::sign::{
+    dilithium3::validate_dilithium3_sign::validate_dilithium3_sign,
+    falcon512::validate_falcon512_sign::validate_falcon512_sign,
+    rsa::validate_rsa_sign::validate_rsa_sign,
+};
 use error::Error;
-use jsonwebtoken::{Algorithm, DecodingKey, Validation, decode};
-use log::error;
 
-use crate::jwt::jwt_claims::JWTClaims;
+use crate::jwt::{algorithm_type::AlgorithmType, jwt_claims::JWTClaims};
 
-pub async fn decode_jwt(public_key: &DecodingKey, jwt: &String) -> Result<JWTClaims, Error> {
-    let mut validation = Validation::new(Algorithm::RS256);
+pub async fn decode_jwt(
+    jwt: &String,
+    alg_type: AlgorithmType,
+    public_key: &Vec<u8>,
+) -> Result<JWTClaims, Error> {
+    let jwt_parts: Vec<&str> = jwt.splitn(3, '.').collect();
 
-    validation.set_required_spec_claims(&["exp", "sub"]);
+    if jwt_parts.len() != 3 {
+        return Err(Error::Unauthorized("invalid jwt".into()));
+    }
 
-    let decoded = decode::<JWTClaims>(&jwt, &public_key, &validation);
+    let head_base64 = jwt_parts[0];
+    let body_base64 = jwt_parts[1];
+    let sign = BASE64_URL_SAFE_NO_PAD
+        .decode(jwt_parts[2])
+        .map_err(|_| Error::Unauthorized("invalid jwt".into()))?;
 
-    let decoded = match decoded {
-        Ok(e) => e,
-        Err(e) => {
-            error!("invalid jwt: {}", e);
-            return Err(Error::Unauthorized("invalid jwt".to_string()));
+    let head_and_body = format!("{}.{}", head_base64, body_base64);
+
+    match alg_type {
+        AlgorithmType::Dilithium3 => {
+            validate_dilithium3_sign(&head_and_body.into_bytes(), &sign, public_key)
         }
-    };
-    Ok(decoded.claims)
+        AlgorithmType::Falcon512 => {
+            validate_falcon512_sign(&head_and_body.into_bytes(), &sign, public_key)
+        }
+        AlgorithmType::Rsa => validate_rsa_sign(&head_and_body.into_bytes(), &sign, public_key),
+    }
+    .map_err(|_| Error::Unauthorized("invalid jwt".into()))?;
+
+    let body = BASE64_URL_SAFE_NO_PAD.decode(body_base64)?;
+
+    let claims: JWTClaims = serde_json::from_slice(&body)?;
+
+    Ok(claims)
 }
