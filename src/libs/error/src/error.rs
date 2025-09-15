@@ -1,5 +1,6 @@
 use actix_web::error::PayloadError;
 use actix_web::{HttpResponse, ResponseError};
+use aes_gcm::Error as AESError;
 use argon2::password_hash::Error as Argon2Error;
 use base64::DecodeError as Base64DecodeError;
 use jsonwebtoken::errors::Error as JwtError;
@@ -163,6 +164,12 @@ impl From<Base64DecodeError> for Error {
 
 impl From<SerdeJsonError> for Error {
     fn from(err: SerdeJsonError) -> Self {
-        Error::Internal(format!("deserialize error error: {}", err))
+        Error::Internal(format!("deserialize error: {}", err))
+    }
+}
+
+impl From<AESError> for Error {
+    fn from(err: AESError) -> Self {
+        Error::Internal(format!("AES ecryption error: {}", err))
     }
 }

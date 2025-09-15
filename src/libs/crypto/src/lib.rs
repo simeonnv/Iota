@@ -4,6 +4,7 @@ mod rand_string;
 pub use rand_string::rand_string;
 
 pub mod hashing;
+pub mod kem;
 pub mod sign;
 
 pub const ARGON2_PARAMS: Result<Params, argon2::Error> = Params::new(
