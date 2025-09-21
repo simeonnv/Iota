@@ -7,7 +7,7 @@ members = [ "src/bins/iota_desktop",
     "src/libs/crypto",
     "src/libs/db",
     "src/libs/error",
-    "src/libs/gateway",
+    "src/libs/gateway", "src/libs/hooks",
     "src/libs/utils",
 ]
 
