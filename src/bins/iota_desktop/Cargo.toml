@@ -1,0 +1,8 @@
+[package]
+name = "iota_desktop"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eframe = "0.32.3"
+egui_transition_animation = "0.1.6"

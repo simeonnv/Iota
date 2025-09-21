@@ -27,6 +27,14 @@ pub async fn get_account_by_credentials_db(
     .fetch_optional(db_pool)
     .await?;
 
+    // let hash = String::from("nigger");
+
+    // if let Some(password_hash) = password_hash
+    //     && password_hash == hash
+    // {
+
+    // }
+
     let account = match db_res {
         Some(value) => value,
         None => return Err(Error::Conflict("Invalid username or password!".to_string())),

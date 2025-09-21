@@ -1,8 +1,7 @@
 [workspace]
 name = "Iota"
 resolver = "3"
-members = [
-    "src/bins/debug_test",
+members = [ "src/bins/iota_desktop",
     "src/bins/reflector",
     "src/libs/auth",
     "src/libs/crypto",
@@ -10,7 +9,6 @@ members = [
     "src/libs/error",
     "src/libs/gateway",
     "src/libs/utils",
-    "src/bins/iota_gui_client", "src/bins/iota_gui_client",
 ]
 
 [profile]
