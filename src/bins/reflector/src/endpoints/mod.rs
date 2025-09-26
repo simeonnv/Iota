@@ -6,6 +6,7 @@ use utoipa_swagger_ui::SwaggerUi;
 pub mod account;
 pub mod auth;
 pub mod get_ping;
+pub mod nat_sync;
 
 pub fn endpoints() -> Scope {
     web::scope("")
@@ -17,4 +18,5 @@ pub fn endpoints() -> Scope {
         .service(get_ping::get_ping)
         .service(auth::auth())
         .service(account::accounts())
+        .service(nat_sync::nat_sync())
 }

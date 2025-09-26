@@ -1,13 +1,16 @@
 [workspace]
 name = "Iota"
 resolver = "3"
-members = [ "src/bins/iota_desktop",
+members = [
+    "src/bins/iota_desktop",
+    "src/bins/iota_tester",
     "src/bins/reflector",
     "src/libs/auth",
     "src/libs/crypto",
     "src/libs/db",
     "src/libs/error",
-    "src/libs/gateway", "src/libs/hooks",
+    "src/libs/gateway",
+    "src/libs/iota_core",
     "src/libs/utils",
 ]
 

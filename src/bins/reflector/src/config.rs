@@ -1,6 +1,6 @@
 use chrono::Duration;
 
-pub const JWT_LIFETIME: Duration = Duration::hours(1);
+pub const JWT_LIFETIME: Duration = Duration::hours(256);
 
 pub const MIN_USERNAME_LENGHT: usize = 5;
 pub const MAX_USERNAME_LENGHT: usize = 20;

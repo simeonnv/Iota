@@ -9,14 +9,16 @@ use auth::{account::create_account_db::create_account_db, jwt::algorithm_type::A
 use db::init_postgres_db;
 use env_logger::Env;
 use log::info;
+use tokio::sync::RwLock;
 
-use crate::{env::ENVVARS, rolling_rsa::RollingKeyPair};
+use crate::{env::ENVVARS, nat_subscriber::NatSubsciber, rolling_rsa::RollingKeyPair};
 
 pub mod api_docs;
 pub mod config;
 pub mod endpoints;
 pub mod env;
 pub mod middleware;
+pub mod nat_subscriber;
 pub mod rolling_rsa;
 
 use endpoints::endpoints;
@@ -48,6 +50,8 @@ async fn main() -> std::io::Result<()> {
         ENVVARS.db_address, ENVVARS.db_port,
     );
 
+    let nat_subsciber = Data::new(RwLock::new(NatSubsciber::new()));
+
     HttpServer::new(move || {
         let cors = Cors::permissive();
 
@@ -58,6 +62,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(PayloadConfig::new(1 * 1024 * 1024)) // 1 mb max upload
             .app_data(db_pool.clone())
             .app_data(rsa_key_pair.clone())
+            .app_data(nat_subsciber.clone())
             .service(endpoints())
     })
     .bind(("0.0.0.0", 25025))?

@@ -23,11 +23,14 @@ impl Modify for BearerAuthAddon {
         endpoints::auth::post_login::post_login,
         endpoints::auth::post_refresh_session::post_refresh_session,
 
-        endpoints::account::get_me::get_me
+        endpoints::account::get_me::get_me,
+
+        endpoints::nat_sync::get_ping::get_ping
     ),
     tags(
         (name = "Auth", description = "Authentication endpoints"),
-        (name = "Account", description = "Account managment, and account data fetching")
+        (name = "Account", description = "Account managment, and account data fetching"),
+        (name = "NAT Sync", description = "Everything doing with synchronizing nats and obtaining nats mappings")
     ),
     modifiers(&BearerAuthAddon),
     security(
