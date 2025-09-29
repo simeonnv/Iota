@@ -6,13 +6,12 @@ use auth::{
 };
 use chashmap::CHashMap;
 use chrono::{NaiveDateTime, Utc};
-use error::Error;
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
 use tokio::sync::RwLock;
 use utoipa::ToSchema;
 
-use crate::{config::JWT_LIFETIME, rolling_rsa::RollingKeyPair};
+use crate::{Error, config::JWT_LIFETIME, rolling_rsa::RollingKeyPair};
 
 #[derive(Serialize, Deserialize, ToSchema)]
 #[schema(as = Post::Auth::RefreshSession::Req)]
@@ -82,7 +81,6 @@ pub async fn post_refresh_session(
             token_data.account_id,
             token_data.role,
             JWT_LIFETIME,
-            rolling_key_pair_read_lock.sign_alg,
             &rolling_key_pair_read_lock.key_pair.private_key,
         )
         .await?

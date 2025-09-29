@@ -1,10 +1,11 @@
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, get, web};
 use auth::{account::get_account_by_id::get_account_by_id, jwt::jwt_claims::JWTClaims};
-use error::Error;
 use serde::Serialize;
 use sqlx::{Pool, Postgres};
 use utoipa::ToSchema;
 use uuid::Uuid;
+
+use crate::Error;
 
 #[derive(Serialize, Debug, ToSchema)]
 #[schema(as = Get::Auth::Account::Me::Res)]

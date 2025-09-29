@@ -1,13 +1,14 @@
-use error::Error;
 use log::info;
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 
+use crate::Error;
+
 pub async fn create_postgres_pool(
-    postgres_user: &String,
-    postgres_password: &String,
-    db_address: &String,
+    postgres_user: &'static str,
+    postgres_password: &'static str,
+    db_address: &'static str,
     db_port: u16,
-    postgres_name: &String,
+    postgres_name: &'static str,
     max_conn: u32,
 ) -> Result<Pool<Postgres>, Error> {
     let db_url: String = format!(
@@ -20,7 +21,8 @@ pub async fn create_postgres_pool(
     let pool = PgPoolOptions::new()
         .max_connections(max_conn)
         .connect(&db_url)
-        .await?;
+        .await
+        .map_err(|e| Error::PoolInitError(e.to_string()))?;
 
     Ok(pool)
 }

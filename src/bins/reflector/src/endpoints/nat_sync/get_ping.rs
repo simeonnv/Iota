@@ -1,15 +1,17 @@
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, get, web};
 use auth::jwt::jwt_claims::JWTClaims;
 use chrono::Utc;
-use error::Error;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 use utoipa::ToSchema;
 
-use crate::nat_subscriber::{NatBody, NatSubsciber};
+use crate::{
+    Error,
+    nat_subscriber::{NatBody, NatSubsciber},
+};
 
 #[derive(Serialize, Deserialize, ToSchema)]
-#[schema(as = Post::Auth::NatSync::Res)]
+#[schema(as = Post::NatSync::Ping::Res)]
 pub struct Res {
     ip: String,
 }
@@ -46,15 +48,6 @@ pub async fn get_ping(
         None => return Err(Error::BadRequest("invalid peer address".into())),
     };
     let peer_addr = peer_addr.to_string();
-    // let sen = {
-    //     let subscriber = nat_subscriber.read().await;
-    //     if let Some(sender) = subscriber.nats.get(&token_data.sub) {
-    //         sender.clone()
-    //     } else {
-    //         let mut subscriber = nat_subscriber.write().await;
-    //         subscriber.get_sender_or_init(&token_data.sub)
-    //     }
-    // };
 
     let sender = {
         if let Some(sender) = nat_subscriber.read().await.get_sender(&token_data.sub) {

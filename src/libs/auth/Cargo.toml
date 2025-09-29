@@ -5,6 +5,15 @@ edition = "2024"
 
 [dependencies]
 # jsonwebtoken = "9.3.1"
+uuid = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+base64 = { workspace = true }
+chrono = { workspace = true }
+log = { workspace = true }
+thiserror = { workspace = true }
+
+oqs = "0.11"
 openssl = "0.10.73"
 sqlx = { version = "0.8", features = [
     "runtime-tokio",
@@ -12,14 +21,6 @@ sqlx = { version = "0.8", features = [
     "chrono",
     "uuid",
 ] }
-chrono = "0.4.41"
-uuid = { version = "1.18.1", features = ["v4", "serde"] }
-log = "0.4.27"
-serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.143"
-base64 = "0.22.1"
-oqs = "0.11"
 
-error = { path = "../../libs/error" }
-db = { path = "../../libs/db" }
-crypto = { path = "../../libs/crypto" }
+crypto = { workspace = true, features = ["falcon512", "argon2"] }
+db = { workspace = true }

@@ -1,10 +1,12 @@
-use error::Error;
 use log::{info, warn};
 use sqlx::{Database, Executor, Pool};
 
-use crate::tables::{
-    INIT_ACCOUNTS_INDEX_ACCOUNT_ID, INIT_ACCOUNTS_INDEX_USERNAME, INIT_ACCOUNTS_TABLE,
-    INIT_REFRESH_TOKEN_INDEX_REFRESH_TOKEN_ID, INIT_REFRESH_TOKEN_TABLE, INIT_RSAKEYPAIR_TABLE,
+use crate::{
+    Error,
+    tables::{
+        INIT_ACCOUNTS_INDEX_ACCOUNT_ID, INIT_ACCOUNTS_INDEX_USERNAME, INIT_ACCOUNTS_TABLE,
+        INIT_REFRESH_TOKEN_INDEX_REFRESH_TOKEN_ID, INIT_REFRESH_TOKEN_TABLE, INIT_RSAKEYPAIR_TABLE,
+    },
 };
 
 pub async fn init_tables<T: Database>(pool: &Pool<T>) -> Result<(), Error>

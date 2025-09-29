@@ -1,7 +1,8 @@
 use db::tables::Accounts;
-use error::Error;
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
+
+use crate::Error;
 
 pub async fn get_account_by_id(
     account_id: Uuid,
@@ -20,6 +21,8 @@ pub async fn get_account_by_id(
 
     match db_res {
         Some(account) => Ok(account),
-        None => Err(Error::Conflict("There is no user with such id!".into())),
+        None => Err(Error::InvalidAccount(
+            "There is no user with such id!".into(),
+        )),
     }
 }

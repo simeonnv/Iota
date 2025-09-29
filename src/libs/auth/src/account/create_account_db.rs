@@ -1,7 +1,8 @@
 use crypto::hashing::argon2_hash;
-use error::Error;
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
+
+use crate::Error;
 
 pub async fn create_account_db(
     username: &String,

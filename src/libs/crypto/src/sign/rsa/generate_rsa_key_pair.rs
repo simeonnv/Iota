@@ -1,14 +1,17 @@
 use chrono::Utc;
-use error::Error;
 use openssl::rsa::Rsa;
 
-use crate::sign::key_pair::KeyPair;
+use crate::{Error, sign::key_pair::KeyPair};
 
 pub fn generate_rsa_key_pair() -> Result<KeyPair, Error> {
-    let rsa = Rsa::generate(2048)?;
+    let rsa = Rsa::generate(2048).map_err(|e| Error::KeyGenerateError(e.to_string()))?;
 
-    let private_key = rsa.private_key_to_pem()?;
-    let public_key = rsa.public_key_to_pem()?;
+    let private_key = rsa
+        .private_key_to_pem()
+        .map_err(|e| Error::KeyGenerateError(e.to_string()))?;
+    let public_key = rsa
+        .public_key_to_pem()
+        .map_err(|e| Error::KeyGenerateError(e.to_string()))?;
 
     let now = Utc::now().naive_utc();
 

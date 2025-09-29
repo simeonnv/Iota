@@ -1,12 +1,14 @@
 use chrono::Utc;
-use error::Error;
 use oqs::kem::{Algorithm, Kem};
 
-use crate::sign::key_pair::KeyPair;
+use crate::{Error, sign::key_pair::KeyPair};
 
 pub fn generate_ml_kem1024_key_pair() -> Result<KeyPair, Error> {
-    let kem_alg = Kem::new(Algorithm::MlKem1024)?;
-    let (public_key, private_key) = kem_alg.keypair()?;
+    let kem_alg =
+        Kem::new(Algorithm::MlKem1024).map_err(|e| Error::AlgorithmError(e.to_string()))?;
+    let (public_key, private_key) = kem_alg
+        .keypair()
+        .map_err(|e| Error::KeyGenerateError(e.to_string()))?;
     let now = Utc::now().naive_utc();
     // kem_alg.
     let keypair = KeyPair {

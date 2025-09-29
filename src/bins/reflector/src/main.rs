@@ -5,13 +5,16 @@ use actix_web::{
     web::{Data, PayloadConfig},
 };
 
-use auth::{account::create_account_db::create_account_db, jwt::algorithm_type::AlgorithmType};
+use auth::account::create_account_db::create_account_db;
 use db::init_postgres_db;
 use env_logger::Env;
 use log::info;
 use tokio::sync::RwLock;
 
 use crate::{env::ENVVARS, nat_subscriber::NatSubsciber, rolling_rsa::RollingKeyPair};
+
+mod error;
+pub use error::Error;
 
 pub mod api_docs;
 pub mod config;
@@ -37,11 +40,13 @@ async fn main() -> std::io::Result<()> {
         &ENVVARS.postgres_name,
         ENVVARS.pool_max_conn,
     )
-    .await?;
-
+    .await
+    .unwrap_or_else(|e| panic!("error setting up db pool!: {}", e.to_string()));
     let db_pool = Data::new(db_pool);
-    let rsa_key_pair =
-        RollingKeyPair::init(db_pool.clone().into_inner(), AlgorithmType::Falcon512).await?;
+
+    let rsa_key_pair = RollingKeyPair::init(db_pool.clone().into_inner())
+        .await
+        .unwrap_or_else(|e| panic!("error setting up rolling key pair!!: {}", e.to_string()));
     let rsa_key_pair = Data::from(rsa_key_pair);
 
     let _ = create_account_db(&"admin".into(), &"admin".into(), "admin", &db_pool).await;

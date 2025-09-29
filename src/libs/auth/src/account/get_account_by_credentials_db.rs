@@ -2,8 +2,9 @@ use crypto::hashing::compare_argon2_hash;
 use db::tables::Accounts;
 use serde::{Deserialize, Serialize};
 
-use error::Error;
 use sqlx::{Pool, Postgres};
+
+use crate::Error;
 
 #[derive(Serialize, Deserialize)]
 struct Res {
@@ -27,21 +28,19 @@ pub async fn get_account_by_credentials_db(
     .fetch_optional(db_pool)
     .await?;
 
-    // let hash = String::from("nigger");
-
-    // if let Some(password_hash) = password_hash
-    //     && password_hash == hash
-    // {
-
-    // }
-
     let account = match db_res {
         Some(value) => value,
-        None => return Err(Error::Conflict("Invalid username or password!".to_string())),
+        None => {
+            return Err(Error::InvalidCredentials(
+                "Invalid username or password!".into(),
+            ));
+        }
     };
 
     match compare_argon2_hash(password, &account.password).await? {
         true => Ok(account),
-        false => Err(Error::Conflict("Invalid username or password!".to_string())),
+        false => Err(Error::InvalidCredentials(
+            "Invalid username or password!".to_string(),
+        )),
     }
 }

@@ -1,21 +1,16 @@
 use base64::{Engine, prelude::BASE64_URL_SAFE_NO_PAD};
 use chrono::{Duration, Utc};
-use crypto::sign::{
-    dilithium3::sign_dilithium3::sign_dilithium3, falcon512::sign_falcon512::sign_falcon512,
-    rsa::sign_rsa::sign_rsa,
-};
-use error::Error;
+use crypto::sign::falcon512::sign_falcon512::sign_falcon512;
 use log::debug;
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::jwt::{algorithm_type::AlgorithmType, jwt_claims::JWTClaims};
+use crate::{Error, jwt::jwt_claims::JWTClaims};
 
 pub async fn create_jwt(
     account_id: Uuid,
     account_role: String,
     jwt_lifetime: Duration,
-    alg_type: AlgorithmType,
     private_key: &Vec<u8>,
 ) -> Result<String, Error> {
     let now = Utc::now().naive_utc();
@@ -26,18 +21,17 @@ pub async fn create_jwt(
     };
 
     let header = json!({
-        "alg": match alg_type {
-            AlgorithmType::Dilithium3 => "PQ-Dilithium3",
-            AlgorithmType::Falcon512 => "PQ-FALC512",
-            AlgorithmType::Rsa => "RS256",
-        },
+        // "alg": match alg_type {
+        //     AlgorithmType::Dilithium3 => "PQ-Dilithium3",
+        //     AlgorithmType::Falcon512 => "PQ-FALC512",
+        //     AlgorithmType::Rsa => "RS256",
+        // },
+        "alg": "PQ-FALC512",
         "typ": "JWT"
     })
     .to_string();
-    let claims = match serde_json::to_string(&jwt_claims) {
-        Ok(e) => e,
-        Err(e) => return Err(Error::Internal(format!("jwt serialization failed: {}", e))),
-    };
+
+    let claims = serde_json::to_string(&jwt_claims)?;
 
     let base64_header = BASE64_URL_SAFE_NO_PAD.encode(header);
     let base64_claims = BASE64_URL_SAFE_NO_PAD.encode(claims);
@@ -45,11 +39,7 @@ pub async fn create_jwt(
     let head_and_body = format!("{}.{}", base64_header, base64_claims);
     let head_and_body_bytes = format!("{}.{}", base64_header, base64_claims).into_bytes();
 
-    let signature = match alg_type {
-        AlgorithmType::Dilithium3 => sign_dilithium3(&head_and_body_bytes, private_key),
-        AlgorithmType::Falcon512 => sign_falcon512(&head_and_body_bytes, private_key),
-        AlgorithmType::Rsa => sign_rsa(&head_and_body_bytes, private_key),
-    }?;
+    let signature = sign_falcon512(&head_and_body_bytes, private_key)?;
 
     let base64_signature = BASE64_URL_SAFE_NO_PAD.encode(signature);
 

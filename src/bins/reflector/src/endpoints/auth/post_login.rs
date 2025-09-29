@@ -4,7 +4,6 @@ use auth::{
     account::get_account_by_credentials_db::get_account_by_credentials_db,
     jwt::create_jwt::create_jwt, refresh_token::create_refresh_token_db::create_refresh_token_db,
 };
-use error::Error;
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
 use tokio::sync::RwLock;
@@ -12,6 +11,7 @@ use utils::insure_len;
 use utoipa::ToSchema;
 
 use crate::{
+    Error,
     config::{
         JWT_LIFETIME, MAX_PASS_LENGHT, MAX_USERNAME_LENGHT, MIN_PASS_LENGHT, MIN_USERNAME_LENGHT,
     },
@@ -69,8 +69,10 @@ pub async fn post_login(
     db_pool: web::Data<Pool<Postgres>>,
     rolling_key_pair: web::Data<RwLock<RollingKeyPair>>,
 ) -> Result<HttpResponse, Error> {
-    insure_len(&body.username, MIN_USERNAME_LENGHT, MAX_USERNAME_LENGHT)?;
-    insure_len(&body.password, MIN_PASS_LENGHT, MAX_PASS_LENGHT)?;
+    insure_len(&body.username, MIN_USERNAME_LENGHT, MAX_USERNAME_LENGHT)
+        .map_err(|e| Error::BadRequest(e))?;
+    insure_len(&body.password, MIN_PASS_LENGHT, MAX_PASS_LENGHT)
+        .map_err(|e| Error::BadRequest(e))?;
 
     let account = get_account_by_credentials_db(&body.username, &body.password, &db_pool).await?;
     let refresh_token =
@@ -82,7 +84,6 @@ pub async fn post_login(
             account.account_id,
             account.role,
             JWT_LIFETIME,
-            rolling_key_pair_read_lock.sign_alg,
             &rolling_key_pair_read_lock.key_pair.private_key,
         )
         .await?

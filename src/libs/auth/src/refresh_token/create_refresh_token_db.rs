@@ -1,8 +1,9 @@
 use crypto::rand_string;
-use error::Error;
 use log::debug;
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
+
+use crate::Error;
 
 pub async fn create_refresh_token_db(
     account_id: &Uuid,

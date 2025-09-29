@@ -1,7 +1,8 @@
 use crypto::sign::key_pair::KeyPair;
-use error::Error;
 use log::info;
 use sqlx::{Pool, Postgres, types::Uuid};
+
+use crate::Error;
 
 pub async fn save_key_pair_db(key_pair: &KeyPair, pool: &Pool<Postgres>) -> Result<(), Error> {
     sqlx::query(

@@ -4,10 +4,11 @@ use actix_web::{
     dev::{ServiceRequest, ServiceResponse},
     middleware::Next,
 };
-use error::Error;
 use gateway::rate_limiter::leaky_bucket::leaky_bucket_rate_limiter::LeakyBucketRateLimiter;
 use log::debug;
 use std::{net::IpAddr, str::FromStr, sync::Arc};
+
+use crate::Error;
 
 pub async fn rate_limiter_middleware(
     req: ServiceRequest,
@@ -29,7 +30,7 @@ pub async fn rate_limiter_middleware(
     debug!("ip: {}, ratelimited: {}", ip, rate_limited);
 
     if rate_limited {
-        return Err(Error::ErrorTooManyRequests("Rate limited".into()).into());
+        return Err(Error::TooManyRequests("Rate limited".into()).into());
     }
 
     next.call(req).await

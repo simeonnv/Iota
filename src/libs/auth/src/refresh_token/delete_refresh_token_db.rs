@@ -1,5 +1,6 @@
-use error::Error;
 use sqlx::{Pool, Postgres};
+
+use crate::Error;
 
 pub async fn delete_refresh_token_db(
     refresh_token: &String,

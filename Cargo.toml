@@ -8,11 +8,52 @@ members = [
     "src/libs/auth",
     "src/libs/crypto",
     "src/libs/db",
-    "src/libs/error",
     "src/libs/gateway",
-    "src/libs/iota_core",
+    "src/libs/core",
     "src/libs/utils",
 ]
+
+[workspace.dependencies]
+auth = { path = "src/libs/auth" }
+crypto = { path = "src/libs/crypto" }
+db = { path = "src/libs/db" }
+gateway = { path = "src/libs/gateway" }
+core = { path = "src/libs/core" }
+utils = { path = "src/libs/utils" }
+
+# Asynchronous and perralelism
+tokio = { version = "1.47.1", features = [
+    "macros",
+    "net",
+    "rt",
+    "sync",
+    "time",
+    "io-util",
+    "test-util",
+], default-features = false }
+
+# Logging
+env_logger = "0.11.8"
+log = "0.4.27"
+
+# Serialization and encoding
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.143"
+base64 = "0.22.1"
+
+# Env
+envconfig = "0.11.0"
+dotenv = "0.15.0"
+
+# Types
+uuid = { version = "1.18.1", features = ["v4", "serde"] }
+chrono = { version = "0.4.41", features = ["serde"] }
+
+# Errors
+thiserror = "2.0.15"
+
+# misc
+lazy_static = "1.5.0"
 
 [profile]
 

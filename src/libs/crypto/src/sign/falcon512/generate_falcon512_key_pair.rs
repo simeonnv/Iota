@@ -1,19 +1,17 @@
 use chrono::Utc;
-use error::Error;
 use oqs::sig::{self, Sig};
 
-use crate::sign::key_pair::KeyPair;
+use crate::{Error, sign::key_pair::KeyPair};
 
 pub fn generate_falcon512_key_pair() -> Result<KeyPair, Error> {
     let now = Utc::now().naive_utc();
-    let sig_alg = Sig::new(sig::Algorithm::Falcon512)?;
-    let (public_key, private_key) = sig_alg.keypair()?;
-    let (public_key, private_key) = (public_key.into_vec(), private_key.into_vec());
+    let sig_alg =
+        Sig::new(sig::Algorithm::Falcon512).map_err(|e| Error::KeyGenerateError(e.to_string()))?;
+    let (public_key, private_key) = sig_alg
+        .keypair()
+        .map_err(|e| Error::KeyGenerateError(e.to_string()))?;
 
-    // dbg!(
-    //     String::from_utf8(public_key.to_owned()).unwrap(),
-    //     String::from_utf8(private_key.to_owned()).unwrap(),
-    // );
+    let (public_key, private_key) = (public_key.into_vec(), private_key.into_vec());
 
     Ok(KeyPair {
         private_key,

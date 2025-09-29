@@ -1,8 +1,9 @@
 use crypto::sign::key_pair::KeyPair;
 use db::tables::RsaKeyPairs;
-use error::Error;
 use log::{info, warn};
 use sqlx::{Pool, Postgres};
+
+use crate::Error;
 
 pub async fn get_latest_key_pair_db(pool: &Pool<Postgres>) -> Result<Option<KeyPair>, Error> {
     let latest_key_pair: Option<RsaKeyPairs> = sqlx::query_as(

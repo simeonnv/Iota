@@ -1,4 +1,4 @@
-use crate::rolling_rsa::RollingKeyPair;
+use crate::{Error, rolling_rsa::RollingKeyPair};
 use actix_web::{
     Error as ActixError, HttpMessage,
     body::MessageBody,
@@ -7,7 +7,6 @@ use actix_web::{
     web,
 };
 use auth::jwt::decode_jwt::decode_jwt;
-use error::Error;
 use tokio::sync::RwLock;
 
 pub async fn auth_middleware(
@@ -37,12 +36,9 @@ pub async fn auth_middleware(
 
     let claims = {
         let rolling_key_pair_read_lock = rolling_key_pair.read().await;
-        decode_jwt(
-            &jwt,
-            rolling_key_pair_read_lock.sign_alg,
-            &rolling_key_pair_read_lock.key_pair.public_key,
-        )
-        .await?
+        decode_jwt(&jwt, &rolling_key_pair_read_lock.key_pair.public_key)
+            .await
+            .map_err(|e| Error::Unauthorized(e.to_string()))?
     };
 
     if let Some(auth_level) = auth_level {

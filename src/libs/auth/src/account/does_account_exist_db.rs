@@ -1,5 +1,6 @@
-use error::Error;
 use sqlx::{Pool, Postgres};
+
+use crate::Error;
 
 pub async fn does_account_exist_db(
     username: &String,

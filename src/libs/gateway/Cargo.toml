@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-chrono = "0.4.41"
-tokio = "1.47.1"
+chrono = { workspace = true }
+tokio = { workspace = true }
 # chashmap = "2.2.2"

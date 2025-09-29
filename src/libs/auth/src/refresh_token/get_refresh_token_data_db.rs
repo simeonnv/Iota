@@ -1,7 +1,8 @@
 use chrono::NaiveDateTime;
-use error::Error;
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
+
+use crate::Error;
 
 #[derive(sqlx::FromRow, Debug)]
 pub struct TokenData {
@@ -39,7 +40,9 @@ pub async fn get_refresh_token_data_db(
 
     let token_info = match db_res {
         Some(e) => e,
-        None => return Err(Error::Unauthorized("Invalid refresh token".to_string())),
+        None => {
+            return Err(Error::InvalidRefreshToken("Invalid refresh token!".into()));
+        }
     };
 
     Ok(token_info)
