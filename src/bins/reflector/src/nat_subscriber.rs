@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use dashmap::DashMap;
 
 use chrono::NaiveDateTime;
 use serde::Serialize;
@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct NatSubsciber {
-    pub nats: HashMap<Uuid, Nat>,
+    pub nats: DashMap<Uuid, Nat>,
 }
 
 #[derive(Debug, Clone)]
@@ -25,7 +25,7 @@ pub struct NatBody {
 impl NatSubsciber {
     pub fn new() -> Self {
         Self {
-            nats: HashMap::new(),
+            nats: DashMap::new(),
         }
     }
 

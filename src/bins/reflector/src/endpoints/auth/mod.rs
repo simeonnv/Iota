@@ -5,8 +5,8 @@ use crate::funtional_middleware;
 use crate::middleware::rate_limiter_middleware;
 use actix_web::dev::HttpServiceFactory;
 use actix_web::web::{self, Data};
-use chashmap::CHashMap;
 use chrono::NaiveDateTime;
+use dashmap::DashMap;
 use gateway::rate_limiter::leaky_bucket::leaky_bucket_rate_limiter::LeakyBucketRateLimiter;
 use lazy_static::lazy_static;
 
@@ -17,7 +17,7 @@ pub mod post_signup;
 lazy_static! {
     // used for insuring that refresh token doesnt already have a jwt assigned to it
     // this is to prevent jwt DDoS attack
-    pub static ref SESSION_MAP: Data<CHashMap<String, NaiveDateTime>> = Data::new(CHashMap::new());
+    pub static ref SESSION_MAP: Data<DashMap<String, NaiveDateTime>> = Data::new(DashMap::new());
     pub static ref AUTH_RATE_LIMITER: Arc<LeakyBucketRateLimiter> = Arc::new(
         LeakyBucketRateLimiter::new(AUTH_RATE_LIMIT_CAP, AUTH_RATE_LIMIT_LEAK)
     );

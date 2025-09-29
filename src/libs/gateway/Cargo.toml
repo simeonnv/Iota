@@ -6,4 +6,5 @@ edition = "2024"
 [dependencies]
 chrono = { workspace = true }
 tokio = { workspace = true }
+dashmap = { workspace = true }
 # chashmap = "2.2.2"

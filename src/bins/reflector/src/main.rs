@@ -9,7 +9,6 @@ use auth::account::create_account_db::create_account_db;
 use db::init_postgres_db;
 use env_logger::Env;
 use log::info;
-use tokio::sync::RwLock;
 
 use crate::{env::ENVVARS, nat_subscriber::NatSubsciber, rolling_rsa::RollingKeyPair};
 
@@ -55,7 +54,7 @@ async fn main() -> std::io::Result<()> {
         ENVVARS.db_address, ENVVARS.db_port,
     );
 
-    let nat_subsciber = Data::new(RwLock::new(NatSubsciber::new()));
+    let nat_subsciber = Data::new(NatSubsciber::new());
 
     HttpServer::new(move || {
         let cors = Cors::permissive();

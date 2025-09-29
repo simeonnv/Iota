@@ -4,8 +4,8 @@ use auth::{
     jwt::create_jwt::create_jwt,
     refresh_token::get_refresh_token_data_db::get_refresh_token_data_db,
 };
-use chashmap::CHashMap;
 use chrono::{NaiveDateTime, Utc};
+use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
 use tokio::sync::RwLock;
@@ -60,7 +60,7 @@ pub async fn post_refresh_session(
     body: web::Json<Req>,
     db_pool: web::Data<Pool<Postgres>>,
     rolling_key_pair: web::Data<RwLock<RollingKeyPair>>,
-    session_map: web::Data<CHashMap<String, NaiveDateTime>>,
+    session_map: web::Data<DashMap<String, NaiveDateTime>>,
 ) -> Result<HttpResponse, Error> {
     dbg!(&session_map);
     let last_session = session_map.get(&body.refresh_token);

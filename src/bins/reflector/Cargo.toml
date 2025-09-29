@@ -13,6 +13,7 @@ log = { workspace = true }
 chrono = { workspace = true }
 env_logger = { workspace = true }
 thiserror = { workspace = true }
+dashmap = { workspace = true }
 
 actix-web = "4.11.0"
 lazy_static = "1.5.0"
@@ -25,12 +26,11 @@ sqlx = { version = "0.8", features = [
 utoipa = { version = "5.2.0", features = ["chrono", "uuid"] }
 utoipa-swagger-ui = { version = "9.0.0", features = ["actix-web", "vendored"] }
 actix-cors = "0.7.0"
-chashmap = "2.2.2"
-
-db = { path = "../../libs/db" }
-auth = { path = "../../libs/auth" }
-utils = { path = "../../libs/utils" }
-gateway = { path = "../../libs/gateway" }
-crypto = { path = "../../libs/crypto" }
 actix-ws = "0.3.0"
 serde_json = "1.0.145"
+
+db = { workspace = true }
+auth = { workspace = true }
+utils = { workspace = true }
+gateway = { workspace = true }
+crypto = { workspace = true }
