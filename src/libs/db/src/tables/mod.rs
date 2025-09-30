@@ -12,3 +12,10 @@ pub use refresh_tokens::RefreshTokens;
 mod rsa_key_pair;
 pub use rsa_key_pair::INIT_RSAKEYPAIR_TABLE;
 pub use rsa_key_pair::RsaKeyPairs;
+
+mod friendships;
+pub use friendships::FriendshipLevel;
+pub use friendships::Friendships;
+pub use friendships::INIT_FRIENDSHIPS_INDEX_IN;
+pub use friendships::INIT_FRIENDSHIPS_INDEX_OUT;
+pub use friendships::INIT_FRIENDSHIPS_TABLE;

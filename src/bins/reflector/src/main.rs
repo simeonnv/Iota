@@ -1,3 +1,4 @@
+use account::query::create_account_db;
 use actix_cors::Cors;
 use actix_web::{
     App, HttpServer,
@@ -5,7 +6,6 @@ use actix_web::{
     web::{Data, PayloadConfig},
 };
 
-use auth::account::create_account_db::create_account_db;
 use db::init_postgres_db;
 use env_logger::Env;
 use log::info;
@@ -28,6 +28,7 @@ use endpoints::endpoints;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let _ = ENVVARS.rust_log;
+    // console_subscriber::init();
     env_logger::init_from_env(Env::default().default_filter_or("info"));
     info!("Server starting up");
 

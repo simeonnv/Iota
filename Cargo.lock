@@ -3,6 +3,18 @@
 version = 4
 
 [[package]]
+name = "account"
+version = "0.1.0"
+dependencies = [
+ "crypto",
+ "db",
+ "serde",
+ "sqlx",
+ "thiserror 2.0.16",
+ "uuid",
+]
+
+[[package]]
 name = "actix-codec"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4811,6 +4823,7 @@ dependencies = [
 name = "reflector"
 version = "0.1.0"
 dependencies = [
+ "account",
  "actix-cors",
  "actix-web",
  "actix-ws",

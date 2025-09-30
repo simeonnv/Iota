@@ -1,5 +1,6 @@
+use account::query::get_account_by_id;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, get, web};
-use auth::{account::get_account_by_id::get_account_by_id, jwt::jwt_claims::JWTClaims};
+use auth::jwt::jwt_claims::JWTClaims;
 use serde::Serialize;
 use sqlx::{Pool, Postgres};
 use utoipa::ToSchema;

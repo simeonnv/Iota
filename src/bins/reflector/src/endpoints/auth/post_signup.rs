@@ -1,8 +1,7 @@
+use account::query::{create_account_db, does_account_exist_db};
 use actix_web::{HttpResponse, post, web};
 use auth::{
-    account::{create_account_db::create_account_db, does_account_exist_db::does_account_exist_db},
-    jwt::create_jwt::create_jwt,
-    refresh_token::create_refresh_token_db::create_refresh_token_db,
+    jwt::create_jwt::create_jwt, refresh_token::create_refresh_token_db::create_refresh_token_db,
 };
 
 use serde::{Deserialize, Serialize};

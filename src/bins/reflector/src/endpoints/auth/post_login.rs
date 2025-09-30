@@ -1,7 +1,7 @@
+use account::query::get_account_by_credentials_db;
 use actix_web::{HttpResponse, post, web};
 
 use auth::{
-    account::get_account_by_credentials_db::get_account_by_credentials_db,
     jwt::create_jwt::create_jwt, refresh_token::create_refresh_token_db::create_refresh_token_db,
 };
 use serde::{Deserialize, Serialize};

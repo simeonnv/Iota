@@ -42,28 +42,35 @@ pub async fn ws_subscribe(
         .get::<JWTClaims>()
         .ok_or_else(|| Error::Unauthorized("Unauthorized access".to_string()))?;
 
-    let uuid = match msg_stream.recv().await {
-        Some(Ok(Message::Text(text))) => serde_json::from_str::<Req>(&text)
-            .map(|req| req.uuid)
-            .map_err(|e| Error::BadRequest(format!("Invalid UUID format: {}", e)))?,
-        _ => {
-            return Err(Error::BadRequest(
-                "Expected UUID in initial message".to_string(),
-            ));
-        }
-    };
-
-    let mut receiver = {
-        let subscriber = nat_subscriber.read().await;
-        if let Some(sender) = subscriber.subscribe(&uuid) {
-            sender.clone()
-        } else {
-            let mut subscriber = nat_subscriber.write().await;
-            subscriber.init_nat(uuid).receiver
-        }
-    };
-
+    // Spawn async task to handle WebSocket messages
     actix_web::rt::spawn(async move {
+        // Receive UUID from initial WebSocket message
+        let uuid = match msg_stream.recv().await {
+            Some(Ok(Message::Text(text))) => match serde_json::from_str::<Req>(&text) {
+                Ok(req) => req.uuid,
+                Err(e) => {
+                    let _ = session.text(format!("Invalid UUID format: {}", e)).await;
+                    return;
+                }
+            },
+            _ => {
+                let _ = session.text("Expected UUID in initial message").await;
+                return;
+            }
+        };
+
+        // Subscribe to NAT updates
+        let mut receiver = {
+            let subscriber = nat_subscriber.read().await;
+            if let Some(sender) = subscriber.subscribe(&uuid) {
+                sender.clone()
+            } else {
+                let mut subscriber = nat_subscriber.write().await;
+                subscriber.init_nat(uuid).receiver
+            }
+        };
+
+        // Main loop to handle WebSocket messages and NAT updates
         loop {
             tokio::select! {
                 Some(Ok(msg)) = msg_stream.recv() => {
@@ -106,5 +113,6 @@ pub async fn ws_subscribe(
         }
     });
 
+    // Return the WebSocket response immediately
     Ok(response)
 }

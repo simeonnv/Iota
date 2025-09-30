@@ -11,12 +11,14 @@ members = [
     "src/libs/gateway",
     "src/libs/core",
     "src/libs/utils",
+    "src/libs/account",
 ]
 
 [workspace.dependencies]
 auth = { path = "src/libs/auth" }
 crypto = { path = "src/libs/crypto" }
 db = { path = "src/libs/db" }
+account = { path = "src/libs/account" }
 gateway = { path = "src/libs/gateway" }
 core = { path = "src/libs/core" }
 utils = { path = "src/libs/utils" }
@@ -57,12 +59,12 @@ thiserror = "2.0.15"
 lazy_static = "1.5.0"
 
 # Storage
-# sqlx = { version = "0.8", features = [
-#     "runtime-tokio",
-#     "postgres",
-#     "chrono",
-#     "uuid",
-# ] }
+sqlx = { version = "0.8", features = [
+    "runtime-tokio",
+    "postgres",
+    "chrono",
+    "uuid",
+] }
 
 
 [profile]

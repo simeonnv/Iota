@@ -5,6 +5,7 @@ use crate::{
     Error,
     tables::{
         INIT_ACCOUNTS_INDEX_ACCOUNT_ID, INIT_ACCOUNTS_INDEX_USERNAME, INIT_ACCOUNTS_TABLE,
+        INIT_FRIENDSHIPS_INDEX_IN, INIT_FRIENDSHIPS_INDEX_OUT, INIT_FRIENDSHIPS_TABLE,
         INIT_REFRESH_TOKEN_INDEX_REFRESH_TOKEN_ID, INIT_REFRESH_TOKEN_TABLE, INIT_RSAKEYPAIR_TABLE,
     },
 };
@@ -30,6 +31,11 @@ where
         // refresh token
         queries.push(INIT_REFRESH_TOKEN_TABLE);
         queries.push(INIT_REFRESH_TOKEN_INDEX_REFRESH_TOKEN_ID);
+
+        // friendships
+        queries.push(INIT_FRIENDSHIPS_TABLE);
+        queries.push(INIT_FRIENDSHIPS_INDEX_IN);
+        queries.push(INIT_FRIENDSHIPS_INDEX_OUT);
     }
 
     for query in queries.into_iter() {

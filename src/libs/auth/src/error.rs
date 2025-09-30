@@ -5,12 +5,6 @@ pub enum Error {
     #[error("Database Error: {0}")]
     DBError(#[from] sqlx::Error),
 
-    #[error("Invalid username or password! Error: {0}")]
-    InvalidCredentials(String),
-
-    #[error("Invalid Account! Error: {0}")]
-    InvalidAccount(String),
-
     #[error("Unable to serialize/unserialize jwt : {0}")]
     JWTSerializationError(String),
 

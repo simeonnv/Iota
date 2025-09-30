@@ -51,8 +51,18 @@ impl From<auth::Error> for Error {
         match err {
             auth::Error::InvalidJWT(e) => Error::Unauthorized(e),
             auth::Error::InvalidRefreshToken(e) => Error::Unauthorized(e),
-            auth::Error::InvalidCredentials(e) => Error::BadRequest(e),
-            auth::Error::InvalidAccount(e) => Error::BadRequest(e),
+            // auth::Error::InvalidCredentials(e) => Error::BadRequest(e),
+            // auth::Error::InvalidAccount(e) => Error::BadRequest(e),
+            _ => Error::Internal(err.to_string()),
+        }
+    }
+}
+
+impl From<account::Error> for Error {
+    fn from(err: account::Error) -> Self {
+        match err {
+            account::Error::InvalidCredentials(e) => Error::BadRequest(e),
+            account::Error::InvalidAccount(e) => Error::BadRequest(e),
             _ => Error::Internal(err.to_string()),
         }
     }
