@@ -1,30 +1,24 @@
 use crypto::hashing::compare_argon2_hash;
-use db::tables::Accounts;
-use serde::{Deserialize, Serialize};
+use db::tables::accounts::Accounts;
 
 use sqlx::{Pool, Postgres};
 
 use crate::Error;
-
-#[derive(Serialize, Deserialize)]
-struct Res {
-    status: String,
-    data: &'static str,
-}
 
 pub async fn get_account_by_credentials_db(
     username: &String,
     password: &String,
     db_pool: &Pool<Postgres>,
 ) -> Result<Accounts, Error> {
-    let db_res: Option<Accounts> = sqlx::query_as(
+    let db_res: Option<Accounts> = sqlx::query_as!(
+        Accounts,
         r#"
             SELECT * FROM Accounts
                 WHERE username = $1
             ;
         "#,
+        username
     )
-    .bind(username)
     .fetch_optional(db_pool)
     .await?;
 

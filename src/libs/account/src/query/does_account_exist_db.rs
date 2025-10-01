@@ -6,17 +6,19 @@ pub async fn does_account_exist_db(
     username: &String,
     db_pool: &Pool<Postgres>,
 ) -> Result<bool, Error> {
-    let account_count: i64 = sqlx::query_scalar(
+    let account_count = sqlx::query_scalar!(
         r#"
-        SELECT COUNT(*) AS count
-            FROM Accounts
-            WHERE username = $1
-        ;
-    "#,
+            SELECT COUNT(*) AS count
+                FROM Accounts
+                WHERE username = $1
+            ;
+        "#,
+        username
     )
     .bind(username)
     .fetch_one(db_pool)
-    .await?;
+    .await?
+    .unwrap_or(0);
 
     Ok(account_count > 0)
 }

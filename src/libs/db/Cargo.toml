@@ -10,9 +10,5 @@ log = { workspace = true }
 thiserror = { workspace = true }
 
 
-sqlx = { workspace = true, features = [
-    "runtime-tokio",
-    "postgres",
-    "chrono",
-    "uuid",
-] }
+sqlx = { workspace = true }
+chrono = { workspace = true }

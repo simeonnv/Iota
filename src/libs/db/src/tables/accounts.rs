@@ -1,6 +1,8 @@
 use chrono::NaiveDateTime;
-use sqlx::types::chrono;
+use sqlx::{Pool, Postgres};
 use uuid::Uuid;
+
+use crate::Error;
 
 #[derive(sqlx::FromRow, Debug)]
 pub struct Accounts {
@@ -11,20 +13,28 @@ pub struct Accounts {
     pub created_at: NaiveDateTime,
 }
 
-pub const INIT_ACCOUNTS_TABLE: &'static str = r#"
-    CREATE TABLE IF NOT EXISTS Accounts (
-        account_id UUID PRIMARY KEY,
-        username VARCHAR(64) NOT NULL UNIQUE,
-        password VARCHAR(256) NOT NULL,
-        role VARCHAR(32) NOT NULL,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-"#;
+pub async fn init_accounts_table(pool: &Pool<Postgres>) -> Result<(), Error> {
+    sqlx::query!(
+        r#"
+        CREATE TABLE IF NOT EXISTS Accounts (
+            account_id UUID PRIMARY KEY,
+            username VARCHAR(64) NOT NULL UNIQUE,
+            password VARCHAR(256) NOT NULL,
+            role VARCHAR(32) NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+    "#,
+    )
+    .execute(pool)
+    .await?;
 
-pub const INIT_ACCOUNTS_INDEX_ACCOUNT_ID: &'static str = r#"
-    CREATE INDEX idx_accounts_account_id ON Accounts (account_id);
-"#;
+    sqlx::query!(r#"CREATE INDEX IF NOT EXISTS idx_accounts_account_id ON Accounts (account_id);"#,)
+        .execute(pool)
+        .await?;
 
-pub const INIT_ACCOUNTS_INDEX_USERNAME: &'static str = r#"
-    CREATE INDEX idx_accounts_username ON Accounts (username);
-"#;
+    sqlx::query!(r#"CREATE INDEX IF NOT EXISTS idx_accounts_username ON Accounts (username);"#,)
+        .execute(pool)
+        .await?;
+
+    Ok(())
+}

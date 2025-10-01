@@ -67,7 +67,8 @@ sqlx = { version = "0.8", features = [
 ] }
 
 
-[profile]
+[profile.dev]
+opt-level = 0
 
 [profile.wasm-dev]
 inherits = "dev"
@@ -78,3 +79,6 @@ inherits = "dev"
 
 [profile.android-dev]
 inherits = "dev"
+
+[profile.dev.package.sqlx-macros]
+opt-level = 3

@@ -1,5 +1,7 @@
-use sqlx::types::chrono::NaiveDateTime;
+use sqlx::{Pool, Postgres, types::chrono::NaiveDateTime};
 use uuid::Uuid;
+
+use crate::Error;
 
 pub enum FriendshipLevel {
     Normal,
@@ -34,22 +36,31 @@ pub struct Friendships {
     pub created_at: NaiveDateTime,
 }
 
-pub const INIT_FRIENDSHIPS_TABLE: &'static str = r#"
-    CREATE TABLE IF NOT EXISTS Friendships (
-        friendship_id UUID PRIMARY KEY,
-        account_in UUID NOT NULL,
-        account_out UUID NOT NULL,
-        friendship_level VARCHAR(64) NOT NULL,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+pub async fn init_friendships_table(pool: &Pool<Postgres>) -> Result<(), Error> {
+    sqlx::query!(
+        r#"
+        CREATE TABLE IF NOT EXISTS Friendships (
+            friendship_id UUID PRIMARY KEY,
+            account_in UUID NOT NULL,
+            account_out UUID NOT NULL,
+            friendship_level VARCHAR(64) NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-        FOREIGN KEY (account_in) REFERENCES Accounts(account_id) ON DELETE CASCADE,
-        FOREIGN KEY (account_out) REFERENCES Accounts(account_id) ON DELETE CASCADE
-    );
-"#;
+            FOREIGN KEY (account_in) REFERENCES Accounts(account_id) ON DELETE CASCADE,
+            FOREIGN KEY (account_out) REFERENCES Accounts(account_id) ON DELETE CASCADE
+        );
+    "#,
+    )
+    .execute(pool)
+    .await?;
 
-pub const INIT_FRIENDSHIPS_INDEX_IN: &'static str = r#"
-    CREATE INDEX idx_friendships_in ON Friendships (username);
-"#;
-pub const INIT_FRIENDSHIPS_INDEX_OUT: &'static str = r#"
-    CREATE INDEX idx_friendships_in ON Friendships (username);
-"#;
+    sqlx::query!("CREATE INDEX IF NOT EXISTS idx_friendships_in ON Friendships (account_in);",)
+        .execute(pool)
+        .await?;
+
+    sqlx::query!("CREATE INDEX IF NOT EXISTS idx_friendships_in ON Friendships (account_in);",)
+        .execute(pool)
+        .await?;
+
+    Ok(())
+}

@@ -1,12 +1,13 @@
 use crypto::sign::key_pair::KeyPair;
-use db::tables::RsaKeyPairs;
+use db::tables::key_pair::KeyPairs;
 use log::{info, warn};
 use sqlx::{Pool, Postgres};
 
 use crate::Error;
 
 pub async fn get_latest_key_pair_db(pool: &Pool<Postgres>) -> Result<Option<KeyPair>, Error> {
-    let latest_key_pair: Option<RsaKeyPairs> = sqlx::query_as(
+    let latest_key_pair: Option<KeyPairs> = sqlx::query_as!(
+        KeyPairs,
         r#"
             SELECT * FROM KeyPairs ORDER BY created_at DESC LIMIT 1;
         "#,

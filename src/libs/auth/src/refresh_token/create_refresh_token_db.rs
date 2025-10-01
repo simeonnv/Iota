@@ -12,20 +12,18 @@ pub async fn create_refresh_token_db(
 ) -> Result<String, Error> {
     let token = rand_string(255);
 
-    sqlx::query(
+    sqlx::query!(
         r#"
-
         INSERT INTO RefreshTokens
             (refresh_token_id, role, refresh_token, account_id)
             VALUES ($1, $2, $3, $4)
         ;
-
     "#,
+        Uuid::new_v4(),
+        role,
+        &token,
+        account_id
     )
-    .bind(Uuid::new_v4())
-    .bind(role)
-    .bind(&token)
-    .bind(account_id)
     .execute(db_pool)
     .await?;
 

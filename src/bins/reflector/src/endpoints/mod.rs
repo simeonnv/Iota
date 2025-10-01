@@ -7,6 +7,7 @@ pub mod account;
 pub mod auth;
 pub mod get_ping;
 pub mod nat_sync;
+pub mod social;
 
 pub fn endpoints() -> Scope {
     web::scope("")

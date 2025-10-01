@@ -1,4 +1,4 @@
-use db::tables::Accounts;
+use db::tables::accounts::Accounts;
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
@@ -8,14 +8,15 @@ pub async fn get_account_by_id(
     account_id: Uuid,
     db_pool: &Pool<Postgres>,
 ) -> Result<Accounts, Error> {
-    let db_res: Option<Accounts> = sqlx::query_as(
+    let db_res: Option<Accounts> = sqlx::query_as!(
+        Accounts,
         r#"
             SELECT * FROM Accounts
                 WHERE account_id = $1
             ;
         "#,
+        account_id
     )
-    .bind(account_id)
     .fetch_optional(db_pool)
     .await?;
 
