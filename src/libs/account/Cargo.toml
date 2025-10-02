@@ -10,3 +10,4 @@ thiserror = { workspace = true }
 db = { workspace = true }
 serde = { workspace = true }
 crypto = { workspace = true, features = ["argon2"] }
+utoipa = { version = "5.2.0", features = ["chrono", "uuid"] }

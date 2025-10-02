@@ -25,12 +25,16 @@ impl Modify for BearerAuthAddon {
 
         endpoints::account::get_me::get_me,
 
-        endpoints::nat_sync::get_ping::get_ping
+        endpoints::nat_sync::get_ping::get_ping,
+
+        endpoints::social::post_friend::post_friend,
+        endpoints::social::get_requests::get_requests
     ),
     tags(
         (name = "Auth", description = "Authentication endpoints"),
         (name = "Account", description = "Account managment, and account data fetching"),
-        (name = "NAT Sync", description = "Everything doing with synchronizing nats and obtaining nats mappings")
+        (name = "NAT Sync", description = "Everything doing with synchronizing nats and obtaining nats mappings"),
+        (name = "Social", description = "Endpoints for handling your friends")
     ),
     modifiers(&BearerAuthAddon),
     security(

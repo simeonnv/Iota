@@ -20,4 +20,5 @@ pub fn endpoints() -> Scope {
         .service(auth::auth())
         .service(account::accounts())
         .service(nat_sync::nat_sync())
+        .service(social::social())
 }

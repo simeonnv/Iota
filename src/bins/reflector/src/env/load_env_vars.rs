@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use crate::env::EnvVars;
-use dotenv::dotenv;
+// use dotenv::dotenv;
 use envconfig::Envconfig;
 
 pub fn load_env_vars() -> EnvVars {

@@ -31,3 +31,10 @@ utils = { workspace = true }
 gateway = { workspace = true }
 crypto = { workspace = true }
 account = { workspace = true }
+
+[build-dependencies]
+lazy_static = { workspace = true }
+db = { workspace = true }
+envconfig = { workspace = true }
+dotenv = { workspace = true }
+tokio = { workspace = true }

@@ -17,13 +17,13 @@ pub async fn init_friendship_requests_table(pool: &Pool<Postgres>) -> Result<(),
         r#"
         CREATE TABLE IF NOT EXISTS FriendshipRequests (
             friendship_request_id UUID PRIMARY KEY,
-            account_from UUID NOT NULL,
-            account_to UUID NOT NULL,
+            account_in UUID NOT NULL,
+            account_out UUID NOT NULL,
             for_friendship_level VARCHAR(64) NOT NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             
-            FOREIGN KEY (account_from) REFERENCES Accounts(account_id) ON DELETE CASCADE,
-            FOREIGN KEY (account_to) REFERENCES Accounts(account_id) ON DELETE CASCADE
+            FOREIGN KEY (account_in) REFERENCES Accounts(account_id) ON DELETE CASCADE,
+            FOREIGN KEY (account_out) REFERENCES Accounts(account_id) ON DELETE CASCADE
         );
     "#,
     )
@@ -31,13 +31,13 @@ pub async fn init_friendship_requests_table(pool: &Pool<Postgres>) -> Result<(),
     .await?;
 
     sqlx::query!(
-        "CREATE INDEX IF NOT EXISTS idx_friendship_requests_from ON FriendshipRequests (account_from);",
+        "CREATE INDEX IF NOT EXISTS idx_friendship_requests_in ON FriendshipRequests (account_in);",
     )
     .execute(pool)
     .await?;
 
     sqlx::query!(
-        "CREATE INDEX IF NOT EXISTS idx_friendship_requests_to ON FriendshipRequests (account_to);",
+        "CREATE INDEX IF NOT EXISTS idx_friendship_requests_out ON FriendshipRequests (account_out);",
     )
     .execute(pool)
     .await?;
