@@ -27,8 +27,10 @@ impl Modify for BearerAuthAddon {
 
         endpoints::nat_sync::get_ping::get_ping,
 
-        endpoints::social::post_friend::post_friend,
-        endpoints::social::get_requests::get_requests
+        endpoints::social::get_friends::get_friends,
+        endpoints::social::post_friends::post_friends,
+        endpoints::social::get_requests::get_requests,
+        endpoints::social::get_requests_request_id_accept::get_requests_request_id_accept
     ),
     tags(
         (name = "Auth", description = "Authentication endpoints"),

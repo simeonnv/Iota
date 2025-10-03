@@ -10,20 +10,20 @@ use uuid::Uuid;
 use crate::Error;
 
 #[derive(Serialize, Deserialize, ToSchema)]
-#[schema(as = Post::Social::Friend::Req)]
+#[schema(as = Post::Social::Friends::Req)]
 pub struct Req {
     pub account_uuid: Uuid,
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]
-#[schema(as = Post::Social::Friend::Res)]
+#[schema(as = Post::Social::Friends::Res)]
 struct Res {
     status: &'static str,
 }
 
 #[utoipa::path(
     post,
-    path = "/social/friend",
+    path = "/social/friends",
     request_body = Req,
     description = "create a friendrequest to smb",
     responses(),
@@ -32,8 +32,8 @@ struct Res {
     ),
     tag = "Social"
 )]
-#[post("/friend")]
-pub async fn post_friend(
+#[post("/friends")]
+pub async fn post_friends(
     body: web::Json<Req>,
     db_pool: web::Data<Pool<Postgres>>,
     req: HttpRequest,

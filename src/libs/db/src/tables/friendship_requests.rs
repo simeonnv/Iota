@@ -6,9 +6,9 @@ use crate::Error;
 #[derive(sqlx::FromRow, Debug)]
 pub struct FriendshipRequests {
     pub friendship_request_id: Uuid,
-    pub for_friendship_level: &'static str,
-    pub account_from: Uuid,
-    pub account_to: Uuid,
+    pub for_friendship_level: String,
+    pub account_in: Uuid,
+    pub account_out: Uuid,
     pub created_at: NaiveDateTime,
 }
 

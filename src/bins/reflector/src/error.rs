@@ -63,6 +63,9 @@ impl From<account::Error> for Error {
         match err {
             account::Error::InvalidCredentials(e) => Error::BadRequest(e),
             account::Error::InvalidAccount(e) => Error::BadRequest(e),
+            account::Error::FriendRequestDoesntExist() => {
+                Error::BadRequest("Friend request does not exist!".into())
+            }
             _ => Error::Internal(err.to_string()),
         }
     }

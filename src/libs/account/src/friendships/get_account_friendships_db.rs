@@ -10,10 +10,12 @@
 // WHERE f.account_in = $1 OR f.account_out = $1;
 
 use crate::Error;
+use serde::Serialize;
 use sqlx::{Pool, Postgres, types::chrono::NaiveDateTime};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(sqlx::FromRow, Debug)]
+#[derive(sqlx::FromRow, Debug, Serialize, ToSchema)]
 pub struct Friendship {
     pub friendship_id: Uuid,
     pub friendship_level: String,

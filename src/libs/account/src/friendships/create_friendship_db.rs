@@ -1,11 +1,11 @@
 use crate::Error;
-use db::tables::friendships::FriendshipLevel;
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
 pub async fn create_friendship_db(
     account_in: &Uuid,
     account_out: &Uuid,
+    for_friendship_level: String,
     db_pool: &Pool<Postgres>,
 ) -> Result<(), Error> {
     let friendship_id = Uuid::new_v4();
@@ -20,7 +20,7 @@ pub async fn create_friendship_db(
         friendship_id,
         account_in,
         account_out,
-        FriendshipLevel::Normal.as_str(),
+        for_friendship_level,
     )
     .execute(db_pool)
     .await?;

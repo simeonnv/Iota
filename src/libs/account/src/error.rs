@@ -13,4 +13,7 @@ pub enum Error {
 
     #[error("Invalid Account! Error: {0}")]
     InvalidAccount(String),
+
+    #[error("Friend request doesnt exist!")]
+    FriendRequestDoesntExist(),
 }
