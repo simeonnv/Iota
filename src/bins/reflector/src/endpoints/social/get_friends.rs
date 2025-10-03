@@ -1,6 +1,7 @@
-use account::friendships::{Friendship, get_account_friendships_db};
+use account::friendships::get_account_friendships_db;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, get, web};
 use auth::jwt::jwt_claims::JWTClaims;
+use db::tables::friendships::Friendships;
 use serde::Serialize;
 use sqlx::{Pool, Postgres};
 use utoipa::ToSchema;
@@ -11,7 +12,7 @@ use crate::Error;
 #[schema(as = Post::NatSync::Ping::Res)]
 pub struct Res {
     status: &'static str,
-    data: Vec<Friendship>,
+    data: Vec<Friendships>,
 }
 
 #[utoipa::path(

@@ -6,6 +6,7 @@ use uuid::Uuid;
 pub async fn create_friendship_request_db(
     account_from: &Uuid,
     account_to: &Uuid,
+    friendship_level: FriendshipLevel,
     db_pool: &Pool<Postgres>,
 ) -> Result<(), Error> {
     let friendship_request_id = Uuid::new_v4();
@@ -20,7 +21,7 @@ pub async fn create_friendship_request_db(
         friendship_request_id,
         account_from,
         account_to,
-        FriendshipLevel::Normal.as_str(),
+        friendship_level.as_str(),
     )
     .execute(db_pool)
     .await?;

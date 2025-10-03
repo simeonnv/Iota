@@ -1384,8 +1384,10 @@ dependencies = [
  "chrono",
  "lazy_static",
  "log",
+ "serde",
  "sqlx",
  "thiserror 2.0.16",
+ "utoipa",
  "uuid",
 ]
 

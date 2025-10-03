@@ -1,7 +1,7 @@
-use account::friendships::FriendshipRequest;
 use account::friendships::get_friendship_requests_db;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, get, web};
 use auth::jwt::jwt_claims::JWTClaims;
+use db::tables::friendship_requests::FriendshipRequests;
 use serde::Serialize;
 use sqlx::{Pool, Postgres};
 use utoipa::ToSchema;
@@ -12,7 +12,7 @@ use crate::Error;
 #[schema(as = Post::Social::Requests::Res)]
 pub struct Res {
     status: &'static str,
-    data: Vec<FriendshipRequest>,
+    data: Vec<FriendshipRequests>,
 }
 
 #[utoipa::path(

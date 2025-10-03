@@ -1,9 +1,12 @@
 use crate::{Error, nat_subscriber::NatSubsciber};
+use account::friendships::get_friendship_by_accounts;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, get, web};
 use actix_ws::Message;
 use auth::jwt::jwt_claims::JWTClaims;
-use log::{error, info};
+use db::tables::friendships::FriendshipLevel;
+use log::error;
 use serde::{Deserialize, Serialize};
+use sqlx::{Pool, Postgres};
 use tokio::sync::RwLock;
 use utoipa::ToSchema;
 use uuid::Uuid;
@@ -32,6 +35,7 @@ pub struct Req {
 pub async fn ws_subscribe(
     req: HttpRequest,
     stream: web::Payload,
+    db_pool: web::Data<Pool<Postgres>>,
     nat_subscriber: web::Data<RwLock<NatSubsciber>>,
 ) -> Result<HttpResponse, Error> {
     let (response, mut session, mut msg_stream) = actix_ws::handle(&req, stream)
@@ -43,9 +47,10 @@ pub async fn ws_subscribe(
         .ok_or_else(|| Error::Unauthorized("Unauthorized access".to_string()))?;
 
     // Spawn async task to handle WebSocket messages
+    let token_data_sub = token_data.sub.clone();
     actix_web::rt::spawn(async move {
         // Receive UUID from initial WebSocket message
-        let uuid = match msg_stream.recv().await {
+        let subscribtion_uuid = match msg_stream.recv().await {
             Some(Ok(Message::Text(text))) => match serde_json::from_str::<Req>(&text) {
                 Ok(req) => req.uuid,
                 Err(e) => {
@@ -59,14 +64,31 @@ pub async fn ws_subscribe(
             }
         };
 
+        let friendship =
+            match get_friendship_by_accounts(&token_data_sub, &subscribtion_uuid, &db_pool).await {
+                Ok(e) => e,
+                Err(e) => {
+                    let _ = session.text(format!("DB error: {}", e)).await;
+                    return;
+                }
+            };
+
+        match friendship {
+            Some(e) if e.for_friendship_level == FriendshipLevel::Trusted.as_str() => e,
+            _ => {
+                let _ = session.text("Invalid friend / subscriptant").await;
+                return;
+            }
+        };
+
         // Subscribe to NAT updates
         let mut receiver = {
             let subscriber = nat_subscriber.read().await;
-            if let Some(sender) = subscriber.subscribe(&uuid) {
+            if let Some(sender) = subscriber.subscribe(&subscribtion_uuid) {
                 sender.clone()
             } else {
                 let mut subscriber = nat_subscriber.write().await;
-                subscriber.init_nat(uuid).receiver
+                subscriber.init_nat(subscribtion_uuid).receiver
             }
         };
 
@@ -76,7 +98,6 @@ pub async fn ws_subscribe(
                 Some(Ok(msg)) = msg_stream.recv() => {
                     match msg {
                         Message::Close(_) => {
-                            info!("WebSocket connection closed for UUID: {}", uuid);
                             let _ = session.close(None).await;
                             break;
                         }
@@ -85,7 +106,6 @@ pub async fn ws_subscribe(
                 }
                 changed = receiver.changed() => {
                     if changed.is_err() {
-                        error!("Receiver dropped for UUID: {}", uuid);
                         let _ = session.close(None).await;
                         break;
                     }
@@ -99,13 +119,13 @@ pub async fn ws_subscribe(
                     let serialized_nat = match serde_json::to_string(nat) {
                         Ok(data) => data,
                         Err(err) => {
-                            error!("Failed to serialize data for UUID {}: {}", uuid, err);
+                            error!("ws serialize error: {}", err);
                             continue;
                         }
                     };
 
                     if let Err(e) = session.text(serialized_nat).await {
-                        error!("Failed to send WebSocket message for UUID {}: {}", uuid, e);
+                        error!("Failed to send WebSocket message: {}", e);
                         break;
                     }
                 }

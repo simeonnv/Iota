@@ -1,7 +1,12 @@
-use account::friendships::create_friendship_request_db;
+use account::{
+    friendships::{
+        create_friendship_request_db, get_friend_request_by_in_out_db, get_friendship_by_accounts,
+    },
+    query::get_account_by_id,
+};
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, post, web};
-
 use auth::jwt::jwt_claims::JWTClaims;
+use db::tables::friendships::FriendshipLevel;
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
 use utoipa::ToSchema;
@@ -13,6 +18,7 @@ use crate::Error;
 #[schema(as = Post::Social::Friends::Req)]
 pub struct Req {
     pub account_uuid: Uuid,
+    pub for_friendship_level: FriendshipLevel,
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]
@@ -25,7 +31,7 @@ struct Res {
     post,
     path = "/social/friends",
     request_body = Req,
-    description = "create a friendrequest to smb",
+    description = "create a friend request to someone",
     responses(),
     security(
         ("bearer_auth" = [])
@@ -44,6 +50,42 @@ pub async fn post_friends(
         Some(e) => e,
     };
 
-    create_friendship_request_db(&token_data.sub, &body.account_uuid, &db_pool).await?;
-    return Ok(HttpResponse::Ok().json(Res { status: "success" }));
+    get_account_by_id(body.account_uuid, &db_pool).await?;
+
+    let maybe_existing_friendrequest =
+        get_friend_request_by_in_out_db(&token_data.sub, &body.account_uuid, &db_pool).await?;
+
+    if maybe_existing_friendrequest.is_some() {
+        return Ok(HttpResponse::Conflict().body("friendrequest already exists!"));
+    }
+
+    let friendship =
+        get_friendship_by_accounts(&token_data.sub, &body.account_uuid, &db_pool).await?;
+
+    if let Some(friendship) = friendship {
+        let friendship_level: FriendshipLevel = friendship.for_friendship_level.into();
+        match (friendship_level, body.for_friendship_level) {
+            (FriendshipLevel::Trusted, FriendshipLevel::Trusted)
+            | (FriendshipLevel::Normal, FriendshipLevel::Normal) => {
+                return Ok(
+                    HttpResponse::Conflict().body("friendship already exists with such level!")
+                );
+            }
+            (FriendshipLevel::Trusted, FriendshipLevel::Normal) => {
+                return Ok(
+                    HttpResponse::Conflict().body("friendship already exists with a higher level!")
+                );
+            }
+            _ => {}
+        }
+    }
+
+    create_friendship_request_db(
+        &token_data.sub,
+        &body.account_uuid,
+        body.for_friendship_level.clone(),
+        &db_pool,
+    )
+    .await?;
+    Ok(HttpResponse::Ok().json(Res { status: "success" }))
 }

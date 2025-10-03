@@ -57,6 +57,7 @@ thiserror = "2.0.15"
 
 # Misc
 lazy_static = "1.5.0"
+utoipa = { version = "5.2.0", features = ["chrono", "uuid"] }
 
 # Storage
 sqlx = { version = "0.8", features = [

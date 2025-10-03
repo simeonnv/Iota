@@ -1,9 +1,11 @@
+use serde::Serialize;
 use sqlx::{Pool, Postgres, types::chrono::NaiveDateTime};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::Error;
 
-#[derive(sqlx::FromRow, Debug)]
+#[derive(sqlx::FromRow, Debug, Serialize, ToSchema)]
 pub struct FriendshipRequests {
     pub friendship_request_id: Uuid,
     pub for_friendship_level: String,

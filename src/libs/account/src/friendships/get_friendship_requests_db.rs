@@ -1,33 +1,19 @@
 use crate::Error;
-use serde::Serialize;
-use sqlx::{Pool, Postgres, types::chrono::NaiveDateTime};
-use utoipa::ToSchema;
+use db::tables::friendship_requests::FriendshipRequests;
+use sqlx::{Pool, Postgres};
 use uuid::Uuid;
-
-#[derive(sqlx::FromRow, Debug, Serialize, ToSchema)]
-pub struct FriendshipRequest {
-    pub friendship_request_id: Uuid,
-    pub for_friendship_level: String,
-    pub account_in: Uuid,
-    pub account_out: Uuid,
-    pub created_at: NaiveDateTime,
-}
 
 pub async fn get_friendship_requests_db(
     account_id: &Uuid,
     db_pool: &Pool<Postgres>,
-) -> Result<Vec<FriendshipRequest>, Error> {
-    let friendnships: Vec<FriendshipRequest> = sqlx::query_as!(
-        FriendshipRequest,
+) -> Result<Vec<FriendshipRequests>, Error> {
+    let friendnships: Vec<FriendshipRequests> = sqlx::query_as!(
+        FriendshipRequests,
         r#"
             SELECT
-                f.friendship_request_id,
-                f.for_friendship_level,
-                f.created_at,
-                f.account_in,
-                f.account_out
-            FROM FriendshipRequests f
-            WHERE f.account_in = $1 OR f.account_out = $1;
+                *
+            FROM FriendshipRequests 
+            WHERE account_in = $1 OR account_out = $1;
         "#,
         account_id
     )
