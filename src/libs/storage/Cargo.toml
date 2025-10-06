@@ -1,0 +1,13 @@
+[package]
+name = "storage"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dirs = "6.0.0"
+sqlx = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+surrealdb = { version = "2.3.10", features = ["kv-rocksdb"] }
+serde = { workspace = true }
